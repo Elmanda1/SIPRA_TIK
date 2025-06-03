@@ -134,7 +134,7 @@
 .login-bg {
   min-height: 100vh;
   width: 100vw;
-  background: radial-gradient(ellipse at 60% 40%, #23244a 60%, #18192b 100%);
+  background: radial-gradient(ellipse at 60% 40%, #214696 60%, #525af3 100%);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -142,7 +142,7 @@
   justify-content: center;
 }
 
-/* Decorative shapes (optional, for background effect) */
+/* Decorative shapes (optional, for background effect) 
 .login-bg::before, .login-bg::after {
   content: '';
   position: absolute;
@@ -163,7 +163,7 @@
   right: 15%;
   bottom: 15%;
   background: #fff;
-}
+} */
 
 .login-center {
   width: 100vw;
@@ -176,10 +176,10 @@
 .login-card {
   background: rgba(30, 32, 60, 0.92);
   border-radius: 18px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(197, 200, 245, 0.37);
   padding: 40px 32px 32px 32px;
   min-width: 340px;
-  max-width: 350px;
+  max-width: 700px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -237,7 +237,8 @@
   font-size: 1.1rem;
   cursor: pointer;
   margin-top: 8px;
-  box-shadow: 0 2px 8px rgba(100,108,255,0.15);
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(73, 78, 168, 0.15);
   transition: background 0.2s;
 }
 
@@ -250,7 +251,14 @@
   text-align: center;
 }
 
+.forgot-link-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
 .forgot-link {
+  white-space: nowrap;
   color: #b3b6e0;
   text-decoration: none;
   font-size: 0.95rem;
@@ -273,4 +281,14 @@
   overflow: hidden;
   clip: rect(0,0,0,0);
   border: 0;
+}
+
+.password-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.password-row input {
+  flex: 1;
 }

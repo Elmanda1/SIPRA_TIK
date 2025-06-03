@@ -28,7 +28,7 @@ function Login() {
                 autoComplete="username"
               />
             </div>
-            <div className="form-group">
+            <div className="form-group password-group">
               <label htmlFor="password" className="sr-only">Password</label>
               <input
                 id="password"
@@ -39,15 +39,15 @@ function Login() {
                 required
                 autoComplete="current-password"
               />
+              <div className="forgot-link-wrapper">
+                <a href="#" className="forgot-link">FORGOT YOUR PASSWORD?</a>
+              </div>
             </div>
             <div className="login-btn-group">
               <button type="submit" className="login-btn">LOG IN</button>
               <button type="button" className="login-btn">SSO</button>
             </div>
           </form>
-          <div className="login-footer">
-            <a href="#" className="forgot-link">FORGOT YOUR PASSWORD?</a>
-          </div>
         </div>
       </div>
     </div>
