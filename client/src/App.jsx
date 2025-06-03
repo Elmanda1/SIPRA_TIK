@@ -5,6 +5,11 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const appName = import.meta.env.VITE_APP_NAME;
+
+  console.log("API: ", apiUrl);
+  console.log("Web: ", appName);
 
   return (
     <>
