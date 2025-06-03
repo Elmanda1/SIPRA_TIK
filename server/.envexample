@@ -1,2 +1,0 @@
-DATABASE_URL="postgresql://siprauser:siprapass@localhost:5432/sipra_db"
-PORT=5000
