@@ -12,7 +12,7 @@ model users {
   uname   String          @db.VarChar(50)
   email   String          @unique @db.VarChar(255)
   pw      String          @db.VarChar(100)
-  role    Role
+  role    role_enum
   barang  inven_barang[]  @relation("UserBarang")
   ruangan inven_ruangan[] @relation("UserRuangan")
   pinjam  peminjaman[]    @relation("UserPinjam")
@@ -23,48 +23,43 @@ model inven_barang {
   nama_barang String       @db.VarChar(255)
   jml_barang  Int
   lokasi      String?      @db.VarChar(100)
-  status      statusInven
+  status      status_inven
   id_user     Int?
-  user        users?       @relation("UserBarang", fields: [id_user], references: [id_user])
+  user        users?       @relation("UserBarang", fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction)
   pinjam      peminjaman[] @relation("BarangPinjam")
 }
 
 model inven_ruangan {
   id_ruangan   Int          @id @default(autoincrement())
   kode_ruangan String       @db.VarChar(255)
-  status       statusInven
+  status       status_inven
   id_user      Int?
-  user         users?       @relation("UserRuangan", fields: [id_user], references: [id_user])
+  user         users?       @relation("UserRuangan", fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction)
   pinjam       peminjaman[] @relation("RuanganPinjam")
 }
 
 model peminjaman {
-  id_peminjaman        Int              @id @default(autoincrement())
-  tanggal_pengajuan    DateTime         @default(now())
-  tanggal_peminjaman   DateTime
-  tanggal_pengembalian DateTime
-  status               statusPeminjaman
-  id_user              Int
+  id_peminjaman        Int            @id @default(autoincrement())
+  tanggal_pengajuan    DateTime?      @default(now()) @db.Timestamp(6)
+  tanggal_peminjaman   DateTime       @db.Timestamp(6)
+  tanggal_pengembalian DateTime       @db.Timestamp(6)
+  status               String         @db.VarChar(20)
+  id_user              Int?
   id_barang            Int?
   id_ruangan           Int?
-  barang               inven_barang?    @relation("BarangPinjam", fields: [id_barang], references: [id_barang])
-  ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [id_ruangan], references: [id_ruangan])
-  user                 users            @relation("UserPinjam", fields: [id_user], references: [id_user])
+  barang               inven_barang?  @relation("BarangPinjam", fields: [id_barang], references: [id_barang], onDelete: NoAction, onUpdate: NoAction)
+  ruangan              inven_ruangan? @relation("RuanganPinjam", fields: [id_ruangan], references: [id_ruangan], onDelete: NoAction, onUpdate: NoAction)
+  user                 users?         @relation("UserPinjam", fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction)
 }
 
-enum Role {
+enum role_enum {
   admin
   dosen
   mahasiswa
 }
 
-enum statusInven {
-  tersedia
-  dipinjam
-}
-
-enum statusPeminjaman {
-  pending
-  diterima
-  ditolak
+enum status_inven {
+  admin
+  dosen
+  mahasiswa
 }
