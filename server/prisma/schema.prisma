@@ -1,5 +1,3 @@
-// schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,55 +8,63 @@ datasource db {
 }
 
 model users {
-  id_user   Int              @id @default(autoincrement())
-  uname     String           @db.VarChar(50)
-  email     String           @unique @db.VarChar(255)
-  pw        String           @db.VarChar(100)
-  role      String           @db.VarChar(20)
-  barang    inven_barang[]   @relation("UserBarang")
-  ruangan   inven_ruangan[]  @relation("UserRuangan")
-  pinjam    peminjaman[]     @relation("UserPinjam")
-
-  @@check(role IN ("admin", "dosen", "mahasiswa"))
+  id_user Int             @id @default(autoincrement())
+  uname   String          @db.VarChar(50)
+  email   String          @unique @db.VarChar(255)
+  pw      String          @db.VarChar(100)
+  role    Role
+  barang  inven_barang[]  @relation("UserBarang")
+  ruangan inven_ruangan[] @relation("UserRuangan")
+  pinjam  peminjaman[]    @relation("UserPinjam")
 }
 
 model inven_barang {
-  id_barang   Int             @id @default(autoincrement())
-  nama_barang String          @db.VarChar(255)
+  id_barang   Int          @id @default(autoincrement())
+  nama_barang String       @db.VarChar(255)
   jml_barang  Int
-  lokasi      String?         @db.VarChar(100)
-  status      String          @db.VarChar(20)
+  lokasi      String?      @db.VarChar(100)
+  status      statusInven
   id_user     Int?
-  user        users?          @relation("UserBarang", fields: [id_user], references: [id_user])
-  pinjam      peminjaman[]    @relation("BarangPinjam")
-
-  @@check(status IN ("tersedia", "dipinjam"))
+  user        users?       @relation("UserBarang", fields: [id_user], references: [id_user])
+  pinjam      peminjaman[] @relation("BarangPinjam")
 }
 
 model inven_ruangan {
-  id_ruangan  Int             @id @default(autoincrement())
-  kode_ruangan String         @db.VarChar(255)
-  status      String          @db.VarChar(20)
-  id_user     Int?
-  user        users?          @relation("UserRuangan", fields: [id_user], references: [id_user])
-  pinjam      peminjaman[]    @relation("RuanganPinjam")
-
-  @@check(status IN ("tersedia", "dipinjam"))
+  id_ruangan   Int          @id @default(autoincrement())
+  kode_ruangan String       @db.VarChar(255)
+  status       statusInven
+  id_user      Int?
+  user         users?       @relation("UserRuangan", fields: [id_user], references: [id_user])
+  pinjam       peminjaman[] @relation("RuanganPinjam")
 }
 
 model peminjaman {
-  id_peminjaman       Int       @id @default(autoincrement())
-  tanggal_pengajuan   DateTime @default(now())
-  tanggal_peminjaman  DateTime
+  id_peminjaman        Int              @id @default(autoincrement())
+  tanggal_pengajuan    DateTime         @default(now())
+  tanggal_peminjaman   DateTime
   tanggal_pengembalian DateTime
-  status              String    @db.VarChar(20)
-  id_user             Int
-  id_barang           Int?
-  id_ruangan          Int?
+  status               statusPeminjaman
+  id_user              Int
+  id_barang            Int?
+  id_ruangan           Int?
+  barang               inven_barang?    @relation("BarangPinjam", fields: [id_barang], references: [id_barang])
+  ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [id_ruangan], references: [id_ruangan])
+  user                 users            @relation("UserPinjam", fields: [id_user], references: [id_user])
+}
 
-  user    users         @relation("UserPinjam", fields: [id_user], references: [id_user])
-  barang  inven_barang? @relation("BarangPinjam", fields: [id_barang], references: [id_barang])
-  ruangan inven_ruangan?@relation("RuanganPinjam", fields: [id_ruangan], references: [id_ruangan])
+enum Role {
+  admin
+  dosen
+  mahasiswa
+}
 
-  @@check(status IN ("pending", "diterima", "ditolak"))
+enum statusInven {
+  tersedia
+  dipinjam
+}
+
+enum statusPeminjaman {
+  pending
+  diterima
+  ditolak
 }
