@@ -7,15 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
-  id_user Int             @id @default(autoincrement())
-  uname   String          @db.VarChar(50)
-  email   String          @unique @db.VarChar(255)
-  pw      String          @db.VarChar(100)
-  role    role_enum
-  barang  inven_barang[]  @relation("UserBarang")
-  ruangan inven_ruangan[] @relation("UserRuangan")
-  pinjam  peminjaman[]    @relation("UserPinjam")
+model User {
+  id_user            Int       @id @default(autoincrement())
+  name               String    @db.VarChar(100)
+  username           String    @db.VarChar(50)
+  email              String    @unique @db.VarChar(255)
+  password           String    @db.VarChar(100)
+  role               Role      @default(mahasiswa)
+  isVerified         Boolean   @default(false)
+  verificationToken  String?   @db.VarChar(255)
+  resetToken         String?   @db.VarChar(255)
+  resetTokenExpiry   DateTime?
+  createdAt          DateTime  @default(now())
+
+  // Auth Relations
+  sessions           Session[]
+
+  // App Relations (Optional)
+  barang             inven_barang[]  @relation("UserBarang")
+  ruangan            inven_ruangan[] @relation("UserRuangan")
+  pinjam             peminjaman[]    @relation("UserPinjam")
 }
 
 model inven_barang {
@@ -23,45 +34,65 @@ model inven_barang {
   nama_barang String       @db.VarChar(255)
   jml_barang  Int
   lokasi      String?      @db.VarChar(100)
-  detail      String       @db.VarChar(100)
-  status      status_inven
+  status      statusInven
   id_user     Int?
-  user        users?       @relation("UserBarang", fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction)
+  user        User?       @relation("UserBarang", fields: [id_user], references: [id_user])
   pinjam      peminjaman[] @relation("BarangPinjam")
+}
+
+model Session {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  refreshToken  String   @db.VarChar(500)
+  userAgent     String?  @db.VarChar(255)
+  ipAddress     String?  @db.VarChar(100)
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+
+  user          User     @relation(fields: [userId], references: [id_user])
 }
 
 model inven_ruangan {
   id_ruangan   Int          @id @default(autoincrement())
-  kode_ruangan String       @db.VarChar(20)
-  detail       String       @db.VarChar(100)
-  status       status_inven
+  kode_ruangan String       @db.VarChar(255)
+  status       statusInven
   id_user      Int?
-  user         users?       @relation("UserRuangan", fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction)
+  user         User?       @relation("UserRuangan", fields: [id_user], references: [id_user])
   pinjam       peminjaman[] @relation("RuanganPinjam")
 }
 
 model peminjaman {
-  id_peminjaman        Int            @id @default(autoincrement())
-  tanggal_pengajuan    DateTime      @default(now()) @db.Timestamp(6)
-  tanggal_peminjaman   DateTime       @db.Timestamp(6)
-  tanggal_pengembalian DateTime       @db.Timestamp(6)
-  status               String         @db.VarChar(20)
+  id_peminjaman        Int              @id @default(autoincrement())
+  tanggal_pengajuan    DateTime         @default(now())
+  tanggal_peminjaman   DateTime
+  tanggal_pengembalian DateTime
+  status               statusPeminjaman
   id_user              Int
   id_barang            Int?
   id_ruangan           Int?
-  barang               inven_barang?  @relation("BarangPinjam", fields: [id_barang], references: [id_barang], onDelete: NoAction, onUpdate: NoAction)
-  ruangan              inven_ruangan? @relation("RuanganPinjam", fields: [id_ruangan], references: [id_ruangan], onDelete: NoAction, onUpdate: NoAction)
-  user                 users          @relation("UserPinjam", fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction)
+  barang               inven_barang?    @relation("BarangPinjam", fields: [id_barang], references: [id_barang])
+  ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [id_ruangan], references: [id_ruangan])
+  user                 User            @relation("UserPinjam", fields: [id_user], references: [id_user])
 }
 
-enum role_enum {
+enum Role {
   admin
   dosen
   mahasiswa
 }
 
-enum status_inven {
-  diajukan
+enum statusUser {
+  active
+  inactive
+}
+
+enum statusInven {
+  tersedia
+  dipinjam
+}
+
+enum statusPeminjaman {
+  pending
   diterima
   ditolak
 }
