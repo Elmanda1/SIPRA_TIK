@@ -10,6 +10,55 @@
   }
 }
 
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    /* For Webkit browsers (Chrome, Safari, Edge) */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;  /* Webkit browsers */
+  }
+  
+  /* Alternative version with more control */
+  .no-scroll {
+    overflow: -moz-scrollbars-none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .no-scroll::-webkit-scrollbar {
+    width: 0 !important;
+    display: none;
+  }
+  
+  /* Hide scrollbar tapi show on hover (bonus) */
+  .scrollbar-hover {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scrollbar-hover::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+  
+  .scrollbar-hover:hover {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-hover:hover::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-hover:hover::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 4px;
+  }
+}
+
 a {
   font-weight: 500;
   color: #646cff;

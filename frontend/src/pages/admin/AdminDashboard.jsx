@@ -65,7 +65,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex bg-gray-50">
+    <div className="h-screen w-screen flex bg-gray-50 hide-scrollbar overflow-hidden">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
         />
       )}
 
-      {/* Sidebar - Fixed position */}
+      {/* Sidebar - Fixed position dengan hide scrollbar */}
       <aside className={`fixed top-0 left-0 z-50 w-64 h-screen bg-white shadow-lg border-r border-gray-200 flex flex-col transition-transform duration-300 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
@@ -93,8 +93,8 @@ const AdminDashboard = () => {
           </button>
         </div>
         
-        {/* Navigation Menu */}
-        <nav className="flex-1 p-4">
+        {/* Navigation Menu dengan hide scrollbar */}
+        <nav className="flex-1 p-4 hide-scrollbar overflow-y-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const IconComponent = item.icon;
@@ -139,8 +139,8 @@ const AdminDashboard = () => {
           sidebarOpen={sidebarOpen}
         />
         
-        {/* Main Content */}
-        <main className="flex-1 bg-gray-50">
+        {/* Main Content dengan hide scrollbar */}
+        <main className="flex-1 bg-gray-50 hide-scrollbar overflow-auto">
           <div className="p-4 lg:p-6 h-full w-full">
             {renderContent()}
           </div>
