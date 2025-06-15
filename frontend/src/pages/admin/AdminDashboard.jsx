@@ -1,5 +1,5 @@
 // src/pages/admin/AdminDashboard.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
   LayoutDashboard, 
@@ -8,7 +8,8 @@ import {
   Settings, 
   LogOut, 
   Menu, 
-  X 
+  X,
+  PackageCheck // Icon untuk validasi barang
 } from 'lucide-react';
 
 // Update imports
@@ -16,6 +17,7 @@ import DashboardContent from '../../components/admin/DashboardContent';
 import AnalyticsContent from '../../components/admin/AnalyticsContent';
 import UsersManagement from '../../components/admin/UsersManagement';
 import AdminSettings from '../../components/admin/AdminSettings';
+import ValidasiBarang from '../../components/admin/ValidasiBarang'; // Import komponen baru
 import Header from '../../components/admin/Header';
 import LogoutModal from '../../components/common/LogoutModal';
 import logoImg from '../../assets/SIPRATIK.png';
@@ -26,9 +28,20 @@ const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  
+  // Ref untuk main content area
+  const mainContentRef = useRef(null);
+
+  // Effect untuk scroll to top ketika currentPage berubah
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentPage]);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'validasi-barang', label: 'Validasi Barang', icon: PackageCheck },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -37,7 +50,9 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DashboardContent />;
+        return <DashboardContent setActiveMenu={setCurrentPage} />; // Pass setCurrentPage as setActiveMenu
+      case 'validasi-barang':
+        return <ValidasiBarang />;
       case 'analytics':
         return <AnalyticsContent />;
       case 'users':
@@ -45,7 +60,7 @@ const AdminDashboard = () => {
       case 'settings':
         return <AdminSettings />;
       default:
-        return <DashboardContent />;
+        return <DashboardContent setActiveMenu={setCurrentPage} />; // Pass setCurrentPage as setActiveMenu
     }
   };
 
@@ -140,7 +155,7 @@ const AdminDashboard = () => {
         />
         
         {/* Main Content dengan hide scrollbar */}
-        <main className="flex-1 bg-gray-50 hide-scrollbar overflow-auto">
+        <main ref={mainContentRef} className="flex-1 bg-gray-50 hide-scrollbar overflow-auto">
           <div className="p-4 lg:p-6 h-full w-full">
             {renderContent()}
           </div>

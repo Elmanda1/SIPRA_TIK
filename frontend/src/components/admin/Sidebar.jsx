@@ -1,9 +1,10 @@
 import React from 'react';
-import { Home, Users, BarChart3, Settings, X, LogOut } from 'lucide-react';
+import { Home, Users, BarChart3, Settings, X, LogOut, PackageCheck } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose, activeMenu, setActiveMenu }) => {
   const menuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
+    { id: 'validasi-barang', name: 'Validasi Barang Pinjaman', icon: PackageCheck },
     { id: 'users', name: 'Users', icon: Users },
     { id: 'analytics', name: 'Analytics', icon: BarChart3 },
     { id: 'settings', name: 'Settings', icon: Settings },

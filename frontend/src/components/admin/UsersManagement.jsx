@@ -5,7 +5,30 @@ const UsersManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [userToEdit, setUserToEdit] = useState(null);
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [successMessage, setSuccessMessage] = useState('');
+  
+  // Form state untuk tambah pengguna
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    role: 'user',
+    status: 'active'
+  });
+  
+  // Form state untuk edit pengguna
+  const [editUser, setEditUser] = useState({
+    id: '',
+    name: '',
+    email: '',
+    role: 'user',
+    status: 'active'
+  });
   const [users, setUsers] = useState([
   {
     id: 1,
@@ -954,14 +977,34 @@ const UsersManagement = () => {
 },
 ]);
 
- const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+ // Filter users based on search term, role, and status
+  const filteredUsers = users.filter(user => {
+    const matchesSearchTerm = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    
+    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    
+    return matchesSearchTerm && matchesRole && matchesStatus;
+  });
 
   const handleEdit = (userId) => {
-    console.log('Edit user:', userId);
-    // Add edit logic here
+    console.log('Edit clicked for user ID:', userId);
+    const user = users.find(u => u.id === userId);
+    console.log('Found user:', user);
+    if (user) {
+      setUserToEdit(user);
+      setEditUser({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status
+      });
+      setShowEditModal(true);
+      console.log('Edit modal should be open now');
+    }
   };
 
   const handleDeleteClick = (user) => {
@@ -971,8 +1014,10 @@ const UsersManagement = () => {
 
   const confirmDelete = () => {
     if (userToDelete) {
+      // Perbaiki syntax dengan menambahkan tanda kurung yang benar
       setUsers(prevUsers => prevUsers.filter(user => user.id !== userToDelete.id));
       setShowDeleteModal(false);
+      setSuccessMessage('Data pengguna berhasil dihapus dari sistem.');
       setShowSuccessModal(true);
       setUserToDelete(null);
       
@@ -993,8 +1038,145 @@ const UsersManagement = () => {
   };
 
   const handleAddUser = () => {
-    console.log('Add new user');
-    // Add new user logic here
+    setShowAddModal(true);
+    setNewUser({
+      name: '',
+      email: '',
+      role: 'user',
+      status: 'active'
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditUser(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmitUser = () => {
+    
+    // Validasi form
+    if (!newUser.name.trim() || !newUser.email.trim()) {
+      alert('Nama dan email harus diisi!');
+      return;
+    }
+    
+    // Validasi email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newUser.email)) {
+      alert('Format email tidak valid!');
+      return;
+    }
+    
+    // Cek apakah email sudah ada
+    const emailExists = users.some(user => user.email.toLowerCase() === newUser.email.toLowerCase());
+    if (emailExists) {
+      alert('Email sudah terdaftar!');
+      return;
+    }
+    
+    // Buat user baru
+    const newUserData = {
+      id: Math.max(...users.map(u => u.id)) + 1,
+      name: newUser.name.trim(),
+      email: newUser.email.trim().toLowerCase(),
+      role: newUser.role,
+      status: newUser.status,
+      joinDate: new Date().toISOString().split('T')[0],
+      totalBorrowings: 0
+    };
+    
+    // Tambah ke array users
+    setUsers(prev => [...prev, newUserData]);
+    
+    // Reset form dan tutup modal
+    setShowAddModal(false);
+    setSuccessMessage('Pengguna baru berhasil ditambahkan!');
+    setShowSuccessModal(true);
+    
+    // Auto close success modal after 3 seconds
+    setTimeout(() => {
+      setShowSuccessModal(false);
+    }, 3000);
+  };
+
+  const cancelAddUser = () => {
+    setShowAddModal(false);
+    setNewUser({
+      name: '',
+      email: '',
+      role: 'user',
+      status: 'active'
+    });
+  };
+
+  const handleEditUser = () => {
+    // Validasi form
+    if (!editUser.name.trim() || !editUser.email.trim()) {
+      alert('Nama dan email harus diisi!');
+      return;
+    }
+    
+    // Validasi email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(editUser.email)) {
+      alert('Format email tidak valid!');
+      return;
+    }
+    
+    // Cek apakah email sudah ada (kecuali email user yang sedang diedit)
+    const emailExists = users.some(user => 
+      user.email.toLowerCase() === editUser.email.toLowerCase() && user.id !== editUser.id
+    );
+    if (emailExists) {
+      alert('Email sudah terdaftar!');
+      return;
+    }
+    
+    // Update user dalam array
+    setUsers(prev => prev.map(user => 
+      user.id === editUser.id 
+        ? {
+            ...user,
+            name: editUser.name.trim(),
+            email: editUser.email.trim().toLowerCase(),
+            role: editUser.role,
+            status: editUser.status
+          }
+        : user
+    ));
+    
+    // Reset form dan tutup modal
+    setShowEditModal(false);
+    setSuccessMessage('Data pengguna berhasil diperbarui!');
+    setShowSuccessModal(true);
+    
+    // Auto close success modal after 3 seconds
+    setTimeout(() => {
+      setShowSuccessModal(false);
+    }, 3000);
+  };
+
+  const cancelEditUser = () => {
+    setShowEditModal(false);
+    setUserToEdit(null);
+    setEditUser({
+      id: '',
+      name: '',
+      email: '',
+      role: 'user',
+      status: 'active'
+    });
   };
 
   return (
@@ -1005,9 +1187,10 @@ const UsersManagement = () => {
         <p className="text-xl text-gray-600">Kelola pengguna sistem</p>
       </div>
 
-      {/* Search and Add User */}
+      {/* Search and Filter Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          {/* Search Input */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
@@ -1019,19 +1202,117 @@ const UsersManagement = () => {
             />
           </div>
           
-          <button
-            onClick={handleAddUser}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            <Plus className="h-5 w-5" />
-            Tambah Pengguna
-          </button>
+          {/* Filter Section */}
+          <div className="flex flex-col sm:flex-row gap-3 items-center">
+            {/* Role Filter */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="roleFilter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                Role:
+              </label>
+              <select
+                id="roleFilter"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none text-sm"
+              >
+                <option value="all">Semua</option>
+                <option value="admin">Dosen</option>
+                <option value="user">Mahasiswa</option>
+              </select>
+            </div>
+            
+            {/* Status Filter */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="statusFilter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                Status:
+              </label>
+              <select
+                id="statusFilter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none text-sm"
+              >
+                <option value="all">Semua</option>
+                <option value="active">Aktif</option>
+                <option value="inactive">Tidak Aktif</option>
+              </select>
+            </div>
+            
+            {/* Add User Button */}
+            <button
+              onClick={handleAddUser}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap"
+            >
+              <Plus className="h-5 w-5" />
+              Tambah Pengguna
+            </button>
+          </div>
         </div>
+        
+        {/* Filter Summary */}
+        {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all') && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-gray-600">Filter aktif:</span>
+              
+              {searchTerm && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                  Pencarian: "{searchTerm}"
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              
+              {roleFilter !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                  Role: {roleFilter === 'admin' ? 'Dosen' : 'Mahasiswa'}
+                  <button
+                    onClick={() => setRoleFilter('all')}
+                    className="hover:bg-purple-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              
+              {statusFilter !== 'all' && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                  Status: {statusFilter === 'active' ? 'Aktif' : 'Tidak Aktif'}
+                  <button
+                    onClick={() => setStatusFilter('all')}
+                    className="hover:bg-green-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setRoleFilter('all');
+                  setStatusFilter('all');
+                }}
+                className="text-xs text-gray-500 hover:text-gray-700 underline"
+              >
+                Hapus semua filter
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mt-2">
+              Menampilkan {filteredUsers.length} dari {users.length} pengguna
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto hide-scrollbar">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -1043,7 +1324,8 @@ const UsersManagement = () => {
                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-800">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 hide-scrollbar" 
+                   style={{ maxHeight: "calc(100vh - 300px)", overflowY: "auto" }}>
               {filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
@@ -1062,17 +1344,17 @@ const UsersManagement = () => {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      user.role === 'admin' 
-                        ? 'bg-purple-100 text-purple-800' 
+                      user.role === 'admin'
+                        ? 'bg-purple-100 text-purple-800'
                         : 'bg-blue-100 text-blue-800'
                     }`}>
-                      {user.role === 'admin' ? 'Administrator' : 'Pengguna'}
+                      {user.role === 'admin' ? 'Dosen' : 'Mahasiswa'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      user.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
+                      user.status === 'active'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                     }`}>
                       {user.status === 'active' ? 'Aktif' : 'Tidak Aktif'}
@@ -1096,7 +1378,12 @@ const UsersManagement = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <button
-                        onClick={() => handleEdit(user.id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('Edit button clicked for user:', user.id);
+                          handleEdit(user.id);
+                        }}
                         className="p-2 text-blue-600 bg-white hover:bg-blue-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                         title="Edit pengguna"
                       >
@@ -1116,7 +1403,6 @@ const UsersManagement = () => {
             </tbody>
           </table>
         </div>
-
         {filteredUsers.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <User className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -1124,6 +1410,212 @@ const UsersManagement = () => {
           </div>
         )}
       </div>
+
+      {/* Edit User Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl overflow-y-auto hide-scrollbar"
+               style={{ maxHeight: "90vh" }}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Edit className="h-6 w-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Edit Pengguna</h3>
+                  <p className="text-sm text-gray-600">Perbarui data pengguna</p>
+                </div>
+              </div>
+              <button
+                onClick={cancelEditUser}
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nama Lengkap *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editUser.name}
+                  onChange={handleEditInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"
+                  placeholder="Masukkan nama lengkap"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editUser.email}
+                  onChange={handleEditInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"
+                  placeholder="nama@email.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  value={editUser.role}
+                  onChange={handleEditInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"
+                >
+                  <option value="user">Mahasiswa</option>
+                  <option value="admin">Dosen</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={editUser.status}
+                  onChange={handleEditInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"
+                >
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Tidak Aktif</option>
+                </select>
+              </div>
+              
+              <div className="flex gap-3 justify-end pt-4">
+                <button
+                  type="button"
+                  onClick={cancelEditUser}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEditUser}
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                >
+                  Perbarui
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl overflow-y-auto hide-scrollbar"
+               style={{ maxHeight: "90vh" }}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Plus className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Tambah Pengguna</h3>
+                  <p className="text-sm text-gray-600">Buat pengguna baru</p>
+                </div>
+              </div>
+              <button
+                onClick={cancelAddUser}
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nama Lengkap *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={newUser.name}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none"
+                  placeholder="Masukkan nama lengkap"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={newUser.email}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none"
+                  placeholder="nama@email.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  value={newUser.role}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none"
+                >
+                  <option value="user">Mahasiswa</option>
+                  <option value="admin">Dosen</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={newUser.status}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none"
+                >
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Tidak Aktif</option>
+                </select>
+              </div>
+              
+              <div className="flex gap-3 justify-end pt-4">
+                <button
+                  type="button"
+                  onClick={cancelAddUser}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitUser}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
@@ -1145,27 +1637,36 @@ const UsersManagement = () => {
               </p>
               {userToDelete && (
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="font-semibold text-gray-800">{userToDelete.name}</p>
-                  <p className="text-sm text-gray-600">{userToDelete.email}</p>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">{userToDelete.name}</p>
+                    <p className="text-sm text-gray-500">{userToDelete.email}</p>
+                  </div>
                 </div>
+                <p className="text-sm text-red-600 mt-3">
+                  <strong>Peringatan:</strong> Data yang dihapus tidak dapat dikembalikan.
+                </p>
+              </div>
               )}
-              <p className="text-sm text-red-600 mt-2">
-                Data yang dihapus tidak dapat dikembalikan.
-              </p>
             </div>
-
+            
             <div className="flex gap-3 justify-end">
               <button
+                type="button"
                 onClick={cancelDelete}
                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
               >
                 Batal
               </button>
               <button
+                type="button"
                 onClick={confirmDelete}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               >
-                Ya, Hapus
+                Hapus
               </button>
             </div>
           </div>
@@ -1180,10 +1681,8 @@ const UsersManagement = () => {
               <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Berhasil!</h3>
-              <p className="text-gray-600 mb-6">
-                Data pengguna berhasil dihapus dari sistem.
-              </p>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Berhasil!</h3>
+              <p className="text-gray-600 mb-6">{successMessage}</p>
               <button
                 onClick={closeSuccessModal}
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"

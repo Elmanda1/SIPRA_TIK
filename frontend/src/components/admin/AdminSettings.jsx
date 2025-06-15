@@ -449,9 +449,9 @@ const AdminSettings = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
-        <p className="text-gray-600">Kelola pengaturan sistem dan preferensi Anda</p>
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-800 mb-2">Settings</h1>
+        <p className="text-xl text-gray-600">Kelola pengaturan sistem dan preferensi Anda</p>
       </div>
       
       <div className="flex flex-col lg:flex-row gap-6">
