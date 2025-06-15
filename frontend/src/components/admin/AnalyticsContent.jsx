@@ -75,7 +75,6 @@ const AnalyticsContent = () => {
     { day: 'Min', morning: 35, afternoon: 25, evening: 12 }
   ];
 
-  // Updated data for TIK infrastructure
   const topEquipmentData = [
     { name: 'Projector Epson EB-X05', borrowCount: 45, category: 'Audio Visual', status: 'Baik' },
     { name: 'Laptop Dell Inspiron 15', borrowCount: 38, category: 'Komputer', status: 'Baik' },
