@@ -8,6 +8,7 @@ import AuthRedirect from './components/AuthRedirect';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import { PeminjamanProvider } from './context/PeminjamanContext';
+import './index.css'
 
 const App = () => {
   return (

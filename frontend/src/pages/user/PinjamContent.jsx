@@ -97,7 +97,7 @@ const PinjamContent = () => {
   // Handle case when user is not logged in
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[80vh]">
+      <div className="flex items-center justify-center min-h-[80vh] ">
         <div className="text-center">
           <p className="text-gray-500 text-lg mb-4">Silakan login terlebih dahulu</p>
           <p className="text-gray-400">Anda perlu login untuk mengakses form peminjaman</p>
@@ -218,7 +218,7 @@ const PinjamContent = () => {
     barangPerKategori[selectedKategori].find(b => b.id === selectedBarang) : null;
 
   return (
-    <div className="flex flex-col items-center rounded-lg w-full min-h-screen py-10 overflow-y-auto">
+    <div className="flex flex-col items-center rounded-lg w-screen min-h-screen py-10 hide-scrollbar">
       {/* Header with animated gradient text */}
       <div className="text-center mb-8">
         <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent pb-1">

@@ -7,7 +7,7 @@
     const navigate = useNavigate();
     
     return (
-      <div className=" flex flex-col items-center justify-center min-h-[60vh]">
+      <div className=" flex flex-col items-center justify-center min-h-screen w-screen hide-scrollbar">
         <div className=' flex flex-col w-full items-center justify-center pb-20 bg-opacity-80 backdrop-blur-sm rounded-xl pt-20'>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-800 text-center mb-7">
             Selamat Datang di          
@@ -15,7 +15,7 @@
                 src={logoImg}
                 alt="Logo"
                 className="w-100 h-30 mt-2"
-          />
+            />
           </h1>
           <p className="text-2xl text-gray-600 text-center mb-12 max-w-4xl">
             Sistem Informasi Peminjaman Sarana dan Prasarana TIK untuk Mahasiswa dan Dosen

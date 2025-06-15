@@ -140,8 +140,8 @@ const BarangContent = ({ selectedCategory }) => {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] w-full mt-10">
-      <div className="text-center mb-8">
+    <div className="flex flex-col items-center justify-center min-h-screen w-screen mt-10 hide-scrollbar">
+      <div className="text-center mb-8 hide-scrollbar">
         <h2 className="text-3xl font-bold text-gray-800">Daftar Barang per Kategori</h2>
         {selectedCategory && (
           <p className="text-lg text-blue-600 mt-2 font-medium">
@@ -150,7 +150,7 @@ const BarangContent = ({ selectedCategory }) => {
         )}
       </div>
       
-      <div className="w-full max-w-7xl space-y-12">
+      <div className="w-full max-w-7xl space-y-12 hide-scrollbar">
         <BarangTable 
           id="ruang-kelas" 
           title="Ruang Kelas" 

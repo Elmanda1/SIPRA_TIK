@@ -12,6 +12,7 @@ import BarangContent from './BarangContent';
 import HistoryContent from './HistoryContent';
 import PinjamContent from './PinjamContent';
 import KetentuanContent from './KetentuanContent';
+import '../../index.css'
 
 export default function UserDashboard() {
   document.title = "SIPRATIK";
@@ -75,13 +76,13 @@ export default function UserDashboard() {
 
   return (    
     <div
-      className="min-h-screen w-[99vw]"
+      className="min-h-screen w-screen overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden hide-scrollbar"
       style={{
         background: "linear-gradient(180deg, rgb(210, 250, 255) 0px, #EAF1F8 1000px)"
       }}
     >
     {/* Header */}
-<div className="bg-white/30 bg-opacity-50 backdrop-blur-sm fixed top-4 left-1/2 transform -translate-x-1/2 min-w-[1800px] max-w-[95vw] w-[1200px] h-30 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 px-20 py-4 flex items-center justify-between z-10 border border-white/20">
+<div className="bg-white/30 bg-opacity-50 backdrop-blur-sm fixed top-4 left-1/2 transform -translate-x-1/2 min-w-[94vw] h-30 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 px-20 py-4 flex items-center justify-between z-10 border border-white/20">
   <a className="text-3xl pl-2 font-bold text-gray-900 cursor-pointer hover:text-black transition-transform active:scale-95 duration-200 hover:scale-105"
     onClick={() => {
       setActiveMenu('Home');
@@ -186,7 +187,7 @@ export default function UserDashboard() {
 </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8 pt-24">
+      <div className="w-screen px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center justify-center min-h-screen hide-scrollbar gap-8 pt-24">
         {activeMenu === 'Home' && (
           <HomeContent
             setActiveMenu={setActiveMenu}
