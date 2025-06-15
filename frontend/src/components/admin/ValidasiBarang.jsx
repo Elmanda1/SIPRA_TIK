@@ -203,9 +203,12 @@ const ValidasiBarang = () => {
     }
   };
 
+  // Enhanced filtering function that includes nama barang, nama pengguna, and kategori
   const filteredData = barangData.filter(item => {
-    const matchesSearch = item.namaBarang.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.submittedBy.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = item.namaBarang.toLowerCase().includes(searchLower) ||
+                         item.submittedBy.toLowerCase().includes(searchLower) ||
+                         item.kategori.toLowerCase().includes(searchLower);
     const matchesFilter = filterStatus === 'all' || item.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -298,7 +301,7 @@ const ValidasiBarang = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Cari barang atau nama pengguna..."
+                placeholder="Cari berdasarkan nama barang, pengguna, atau kategori..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
