@@ -208,7 +208,7 @@ const HistoryContent = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black w-screen mt-10 hide-scrollbar">
+    <div className="flex flex-col items-center justify-center min-h-screen w-screen mt-10 hide-scrollbar">
       <div className='hide-scrollbar'>
         <BookingTable title="Pinjaman Aktif" bookings={activeBookings} handleBookingClick={handleDetailClick} />
         <BookingTable title="History Peminjaman" bookings={historyBookings} handleBookingClick={handleDetailClick} />
@@ -268,7 +268,7 @@ const HistoryContent = ({
 
         {/* Modal khusus untuk detail penalty */}
         {showPenaltyDetailModal && selectedBooking && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[95vh] overflow-y-auto hide-scrollbar">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
@@ -405,7 +405,7 @@ const HistoryContent = ({
 
         {/* Penalty Confirmation Modal */}
         {showPenaltyModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[95vh] overflow-y-auto hide-scrollbar">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
