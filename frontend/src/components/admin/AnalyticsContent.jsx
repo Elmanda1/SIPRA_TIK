@@ -151,12 +151,12 @@ const AnalyticsContent = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-gray-600">Analisis mendalam tentang aktivitas peminjaman sarana & prasarana TIK</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Analytics</h1>
+          <p className="text-xl text-gray-600">Analisis mendalam tentang aktivitas peminjaman sarana & prasarana TIK</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-3">

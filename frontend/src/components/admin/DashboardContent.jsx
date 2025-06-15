@@ -20,9 +20,46 @@ import UserActivityData, {
   calculateUserStats 
 } from './Charts/UserActivityData';
 
-const DashboardContent = () => {
+const DashboardContent = ({ setActiveMenu }) => {
   // Hitung statistik pengguna real-time
   const userStats = calculateUserStats();
+
+  // Enhanced navigation handlers untuk quick actions dengan smooth scroll
+  const handleNavigationWithScroll = (menuId) => {
+    // Set active menu terlebih dahulu
+    setActiveMenu(menuId);
+    
+    // Tambahkan small delay untuk memastikan navigation state sudah update
+    setTimeout(() => {
+      // Scroll to top dengan smooth behavior
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Juga scroll main content jika ada
+      const mainContent = document.querySelector('main');
+      if (mainContent) {
+        mainContent.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    }, 50);
+  };
+
+  // Navigation handlers untuk quick actions
+  const handleValidasiSaranaPrasarana = () => {
+    handleNavigationWithScroll('validasi-barang');
+  };
+
+  const handleKelolaPengguna = () => {
+    handleNavigationWithScroll('users');
+  };
+
+  const handleLihatLaporan = () => {
+    handleNavigationWithScroll('analytics');
+  };
 
   // Updated stats dengan data real dari UserActivityData
   const stats = [
@@ -73,87 +110,87 @@ const DashboardContent = () => {
   ];
 
   const recentActivities = [
-  {
-    id: 1,
-    user: "Muhammad Rafif Dwarka",
-    action: "Meminjam alat",
-    item: "Laptop, Proyektor",
-    time: "2 jam yang lalu",
-    status: "approved"
-  },
-  {
-    id: 2,
-    user: "Falih Elmanda Ghaisan",
-    action: "Pembatalan peminjaman",
-    item: "Ruang GSG 204",
-    time: "4 jam yang lalu",
-    status: "cancelled"
-  },
-  {
-    id: 3,
-    user: "Hari Bernardo",
-    action: "Meminjam ruangan",
-    item: "Ruang GSG 211",
-    time: "6 jam yang lalu",
-    status: "pending"
-  },
-  {
-    id: 4,
-    user: "Muhammad Aurakha Ghazy Zackhary",
-    action: "Meminjam alat",
-    item: "Kamera Digital, Tripod",
-    time: "7 jam yang lalu",
-    status: "approved"
-  },
-  {
-    id: 5,
-    user: "Raden Mas Fidel Khalid Ramadhan",
-    action: "Meminjam ruangan",
-    item: "Ruang AA 204",
-    time: "9 jam yang lalu",
-    status: "cancelled"
-  },
-  {
-    id: 6,
-    user: "Muhammad Rafif Dwarka",
-    action: "Meminjam alat",
-    item: "Speaker",
-    time: "12 jam yang lalu",
-    status: "approved"
-  },
-  {
-    id: 7,
-    user: "Falih Elmanda Ghaisan",
-    action: "Meminjam ruangan",
-    item: "Ruang GSG 202",
-    time: "15 jam yang lalu",
-    status: "pending"
-  },
-  {
-    id: 8,
-    user: "Hari Bernardo",
-    action: "Meminjam alat",
-    item: "Proyektor",
-    time: "1 hari yang lalu",
-    status: "approved"
-  },
-  {
-    id: 9,
-    user: "Muhammad Aurakha Ghazy Zackhary",
-    action: "Pembatalan peminjaman",
-    item: "Ruang GSG 208",
-    time: "2 hari yang lalu",
-    status: "cancelled"
-  },
-  {
-    id: 10,
-    user: "Raden Mas Fidel Khalid Ramadhan",
-    action: "Meminjam ruangan",
-    item: "Ruang GSG 209",
-    time: "3 hari yang lalu",
-    status: "approved"
-  }
-];
+    {
+      id: 1,
+      user: "Muhammad Rafif Dwarka",
+      action: "Meminjam alat",
+      item: "Laptop, Proyektor",
+      time: "2 jam yang lalu",
+      status: "approved"
+    },
+    {
+      id: 2,
+      user: "Falih Elmanda Ghaisan",
+      action: "Pembatalan peminjaman",
+      item: "Ruang GSG 204",
+      time: "4 jam yang lalu",
+      status: "cancelled"
+    },
+    {
+      id: 3,
+      user: "Hari Bernardo",
+      action: "Meminjam ruangan",
+      item: "Ruang GSG 211",
+      time: "6 jam yang lalu",
+      status: "pending"
+    },
+    {
+      id: 4,
+      user: "Muhammad Aurakha Ghazy Zackhary",
+      action: "Meminjam alat",
+      item: "Kamera Digital, Tripod",
+      time: "7 jam yang lalu",
+      status: "approved"
+    },
+    {
+      id: 5,
+      user: "Raden Mas Fidel Khalid Ramadhan",
+      action: "Meminjam ruangan",
+      item: "Ruang AA 204",
+      time: "9 jam yang lalu",
+      status: "cancelled"
+    },
+    {
+      id: 6,
+      user: "Muhammad Rafif Dwarka",
+      action: "Meminjam alat",
+      item: "Speaker",
+      time: "12 jam yang lalu",
+      status: "approved"
+    },
+    {
+      id: 7,
+      user: "Falih Elmanda Ghaisan",
+      action: "Meminjam ruangan",
+      item: "Ruang GSG 202",
+      time: "15 jam yang lalu",
+      status: "pending"
+    },
+    {
+      id: 8,
+      user: "Hari Bernardo",
+      action: "Meminjam alat",
+      item: "Proyektor",
+      time: "1 hari yang lalu",
+      status: "approved"
+    },
+    {
+      id: 9,
+      user: "Muhammad Aurakha Ghazy Zackhary",
+      action: "Pembatalan peminjaman",
+      item: "Ruang GSG 208",
+      time: "2 hari yang lalu",
+      status: "cancelled"
+    },
+    {
+      id: 10,
+      user: "Raden Mas Fidel Khalid Ramadhan",
+      action: "Meminjam ruangan",
+      item: "Ruang GSG 209",
+      time: "3 hari yang lalu",
+      status: "approved"
+    }
+  ];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -188,12 +225,12 @@ const DashboardContent = () => {
   };
 
   return (
-    <div className="min-h-screen w-full space-y-6 bg-gray-50 px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen w-full space-y-6 p-6 bg-gray-50">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Selamat datang kembali! Berikut ringkasan aktivitas hari ini.</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
+          <p className="text-xl text-gray-600">Selamat datang kembali! Berikut ringkasan aktivitas hari ini.</p>
         </div>
         <div className="text-sm text-gray-500">
           <Calendar className="inline w-4 h-4 mr-1" />
@@ -248,7 +285,7 @@ const DashboardContent = () => {
               <p className="text-2xl font-bold text-gray-900">{userStats.averageActivePerDay}</p>
             </div>
             <div className="p-3 bg-purple-100 rounded-full">
-              <BarChart3 className="w-6 h-6 text-purple-600" /> {/* Sekarang BarChart3 sudah didefinisikan */}
+              <BarChart3 className="w-6 h-6 text-purple-600" />
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-2">Total minggu ini: {userStats.totalActiveThisWeek}</p>
@@ -311,30 +348,44 @@ const DashboardContent = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions with Enhanced Navigation */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Aksi Cepat</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="group flex items-center justify-center p-4 border-2 border-dashed bg-white border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            {/* Validasi Sarana Prasarana Button */}
+            <button 
+              onClick={handleValidasiSaranaPrasarana}
+              className="group flex items-center justify-center p-4 border-2 border-dashed bg-white border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer transform hover:scale-105"
+            >
               <div className="text-center">
                 <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-blue-500 transition-colors" />
                 <p className="font-medium text-gray-900">Validasi Sarana Prasarana</p>
                 <p className="text-sm text-gray-500">Kelola koleksi Sarana Prasarana TIK</p>
               </div>
             </button>
-            <button className="group flex items-center justify-center p-4 border-2 border-dashed bg-white border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+
+            {/* Kelola Pengguna Button */}
+            <button 
+              onClick={handleKelolaPengguna}
+              className="group flex items-center justify-center p-4 border-2 border-dashed bg-white border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 cursor-pointer transform hover:scale-105"
+            >
               <div className="text-center">
-                <Users className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-blue-500 transition-colors" />
+                <Users className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-green-500 transition-colors" />
                 <p className="font-medium text-gray-900">Kelola Pengguna</p>
                 <p className="text-sm text-gray-500">Manajemen akun pengguna</p>
               </div>
             </button>
-            <button className="group flex items-center justify-center p-4 border-2 border-dashed bg-white border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+
+            {/* Lihat Laporan Button */}
+            <button 
+              onClick={handleLihatLaporan}
+              className="group flex items-center justify-center p-4 border-2 border-dashed bg-white border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer transform hover:scale-105"
+            >
               <div className="text-center">
-                <TrendingUp className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-blue-500 transition-colors" />
+                <TrendingUp className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-purple-500 transition-colors" />
                 <p className="font-medium text-gray-900">Lihat Laporan</p>
                 <p className="text-sm text-gray-500">Analisis dan statistik</p>
               </div>
