@@ -8,10 +8,12 @@ import AuthRedirect from './components/AuthRedirect';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import { PeminjamanProvider } from './context/PeminjamanContext';
+import { ThemeProvider } from './context/ThemeContext';
 import './index.css'
 
 const App = () => {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <BrowserRouter>
@@ -54,6 +56,7 @@ const App = () => {
         </BrowserRouter>
       </div>
     </AuthProvider>
+    </ThemeProvider>
   );
 };
 
