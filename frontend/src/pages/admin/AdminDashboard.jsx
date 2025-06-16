@@ -91,7 +91,7 @@ const AdminDashboard = () => {
   // Dynamic classes based on theme
   const getSidebarClasses = () => {
     return isDark 
-      ? 'bg-gray-800 shadow-lg border-r border-gray-700' 
+      ? 'bg-zinc-800 shadow-lg border-r border-gray-700' 
       : 'bg-white shadow-lg border-r border-gray-200';
   };
 
@@ -102,16 +102,16 @@ const AdminDashboard = () => {
   };
 
   const getMenuItemClasses = (isActive) => {
-    if (isActive) {
-      return isDark 
-        ? 'bg-blue-900/50 text-blue-300' 
-        : 'bg-blue-100 text-blue-700';
-    }
-    return isDark 
-      ? 'text-gray-300 bg-gray-800 hover:bg-gray-700' 
-      : 'text-gray-700 bg-white hover:bg-gray-100';
+  return isActive
+    ? (isDark 
+        ? 'bg-blue-100 text-blue-700'
+        : 'bg-blue-900/30 text-blue-400'
+        )
+    : (isDark 
+        ? 'text-gray-300 bg-zinc-800 hover:bg-zinc-700' 
+        : 'text-gray-700 bg-white hover:bg-gray-100');
   };
-
+  
   const getSidebarFooterClasses = () => {
     return isDark 
       ? 'border-t border-gray-700' 
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
 
   const getLogoutButtonClasses = () => {
     return isDark 
-      ? 'bg-gray-800 text-red-400 hover:bg-red-900/30 hover:text-red-300' 
+      ? 'text-red-400 hover:bg-red-900/30 hover:text-red-300' 
       : 'bg-white text-red-600 hover:bg-red-50 hover:text-red-700';
   };
 
