@@ -159,9 +159,22 @@ const NotificationsPage = () => {
     );
   };
 
+  const handleNotificationClick = (notification) => {
+    setSelectedNotifs(prev => {
+      if (prev.includes(notification.id)) {
+        return prev.filter(id => id !== notification.id);
+      } else {
+        return [...prev, notification.id];
+      }
+    });
+  };
+
   const handleMarkAsRead = async () => {
+    if (selectedNotifs.length === 0) return;
+    
     setLoading(true);
     try {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
       setNotifications(prev => 
         prev.map(notif => 
@@ -169,25 +182,22 @@ const NotificationsPage = () => {
         )
       );
       setSelectedNotifs([]);
-      setShowConfirmDialog(false);
-    } catch (error) {
-      console.error('Error marking as read:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
+    if (selectedNotifs.length === 0) return;
+
     setLoading(true);
     try {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
       setNotifications(prev => 
         prev.filter(notif => !selectedNotifs.includes(notif.id))
       );
       setSelectedNotifs([]);
-      setShowConfirmDialog(false);
-    } catch (error) {
-      console.error('Error deleting:', error);
     } finally {
       setLoading(false);
     }
@@ -196,15 +206,12 @@ const NotificationsPage = () => {
   return (
     <div className="h-full w-full">
       {/* Main Content Container */}
-      <div className="p-4 md:p-6 space-y-6 max-w-full">
+      <div className="p-4 md:p-6 space-y-6">
         {/* Page Header */}
         <div className="flex flex-col lg:flex-row justify-between gap-4 items-start lg:items-center">
-          <div className="flex items-center gap-3">
-            <Bell className="w-8 h-8 text-blue-600" />
-            <h1 className={`text-2xl font-bold ${themeClasses.textPrimary}`}>
+            <h1 className={`text-4xl font-bold ${themeClasses.textPrimary}`}>
               Notifikasi
             </h1>
-          </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
             <div className="relative flex-1 lg:flex-none">
@@ -256,125 +263,99 @@ const NotificationsPage = () => {
           ))}
         </div>
 
-        {/* Notifications List */}
-        <div className="space-y-3">
-          {selectedNotifs.length > 0 && (
-            <div className="flex items-center gap-2 mb-4">
+        {/* Bulk Actions */}
+        {selectedNotifs.length > 0 && (
+          <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+            <span className={`${themeClasses.textSecondary}`}>
+              {selectedNotifs.length} notifikasi dipilih
+            </span>
+            <div className="flex gap-2">
               <button
-                onClick={() => {
-                  setConfirmAction('read');
-                  setShowConfirmDialog(true);
-                }}
-                className="px-4 py-2 text-sm rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center gap-2"
+                onClick={handleMarkAsRead}
+                disabled={loading}
+                className="px-4 py-2 text-sm rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 
+                  flex items-center gap-2 disabled:opacity-50"
               >
                 <Eye className="w-4 h-4" />
-                Tandai Dibaca ({selectedNotifs.length})
+                Tandai Dibaca
               </button>
               <button
-                onClick={() => {
-                  setConfirmAction('delete');
-                  setShowConfirmDialog(true);
-                }}
-                className="px-4 py-2 text-sm rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center gap-2"
+                onClick={handleDelete}
+                disabled={loading}
+                className="px-4 py-2 text-sm rounded-lg bg-red-50 text-red-600 hover:bg-red-100 
+                  flex items-center gap-2 disabled:opacity-50"
               >
                 <Trash2 className="w-4 h-4" />
-                Hapus ({selectedNotifs.length})
-              </button>
-            </div>
-          )}
-
-          {filteredNotifications.length === 0 ? (
-            <div className={`text-center py-8 ${themeClasses.textSecondary}`}>
-              {searchQuery ? 'Tidak ada notifikasi yang sesuai dengan pencarian' : 'Tidak ada notifikasi'}
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg border">
-              {filteredNotifications.map((notification, index) => (
-                <React.Fragment key={notification.id}>
-                  <NotificationItem
-                    notification={notification}
-                    isSelected={selectedNotifs.includes(notification.id)}
-                    onSelect={handleSelectNotif}
-                    themeClasses={themeClasses}
-                  />
-                  {index < filteredNotifications.length - 1 && (
-                    <hr className={themeClasses.border} />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Confirmation Dialog */}
-      {showConfirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${themeClasses.bgCard} p-6 rounded-lg max-w-md w-full mx-4`}>
-            <h3 className={`text-lg font-medium ${themeClasses.textPrimary} mb-2`}>
-              {confirmAction === 'delete' ? 'Hapus Notifikasi' : 'Tandai Dibaca'}
-            </h3>
-            <p className={`${themeClasses.textSecondary} mb-4`}>
-              {confirmAction === 'delete' 
-                ? 'Apakah Anda yakin ingin menghapus notifikasi yang dipilih?' 
-                : 'Tandai notifikasi yang dipilih sebagai telah dibaca?'}
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowConfirmDialog(false)}
-                className={`px-4 py-2 rounded-lg ${themeClasses.bgHover}`}
-              >
-                Batal
-              </button>
-              <button
-                onClick={confirmAction === 'delete' ? handleDelete : handleMarkAsRead}
-                disabled={loading}
-                className={`px-4 py-2 rounded-lg ${
-                  confirmAction === 'delete' 
-                    ? 'bg-red-600 text-white hover:bg-red-700' 
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {loading ? 'Loading...' : confirmAction === 'delete' ? 'Hapus' : 'Tandai Dibaca'}
+                Hapus
               </button>
             </div>
           </div>
+        )}
+
+        {/* Notifications List */}
+        <div className="space-y-4 px-2"> {/* Changed from bg-white rounded-lg border to space-y-4 px-2 */}
+          {filteredNotifications.map((notification) => ( // Removed index parameter
+            <NotificationItem
+              key={notification.id}
+              notification={notification}
+              isSelected={selectedNotifs.includes(notification.id)}
+              onClick={() => handleNotificationClick(notification)}
+              themeClasses={themeClasses}
+            />
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-const NotificationItem = ({ notification, isSelected, onSelect, themeClasses }) => {
+const NotificationItem = ({ notification, isSelected, onClick, themeClasses }) => {
   const IconComponent = notification.icon;
   
   return (
     <div
-      className={`${notification.bgColor} border rounded-lg p-4 transition-all hover:shadow-md relative ${
-        isSelected ? 'ring-2 ring-blue-500' : ''
-      }`}
-      onClick={() => onSelect(notification.id)}
+      onClick={onClick}
+      className={`p-4 transition-all relative w-full
+        cursor-pointer select-none group
+        transform transition-transform duration-200 ease-in-out
+        rounded-xl mx-2 my-1.5
+        ${isSelected 
+          ? 'ring-2 ring-blue-500 ring-inset scale-[1.01] shadow-md bg-blue-50/30' 
+          : 'hover:bg-gray-50/80 hover:scale-[1.005] hover:shadow-sm border-2 border-gray-100'
+        }`}
+      style={{
+        transition: 'all 0.2s ease-in-out',
+      }}
     >
       <div className="flex items-start gap-4">
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={() => onSelect(notification.id)}
-          className="mt-2"
-        />
-        <div className={`p-2 rounded-full ${notification.bgColor}`}>
-          <IconComponent className={`w-6 h-6 ${notification.color}`} />
+        <div className={`p-2.5 rounded-full transition-all duration-200
+          ${notification.bgColor} 
+          ${isSelected ? 'scale-110' : 'group-hover:scale-105'}`}
+        >
+          <IconComponent className={`w-6 h-6 ${notification.color} 
+            transition-all duration-200
+            ${isSelected ? 'rotate-12' : 'group-hover:rotate-6'}`} 
+          />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0"> {/* Added min-w-0 for text truncation */}
           <div className="flex items-center gap-2">
-            <h3 className={`font-medium ${themeClasses.textPrimary}`}>
+            <h3 className={`font-semibold ${themeClasses.textPrimary} 
+              transition-all duration-200 truncate
+              ${isSelected ? 'text-blue-600' : ''}`}
+            >
               {notification.title}
             </h3>
             {!notification.isRead && (
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className={`w-2 h-2 flex-shrink-0 rounded-full bg-blue-500
+                transition-all duration-200
+                ${isSelected ? 'scale-125' : ''}`} 
+              />
             )}
           </div>
-          <p className={`text-sm mt-1 ${themeClasses.textSecondary}`}>
+          <p className={`text-sm mt-1 ${themeClasses.textSecondary}
+            transition-all duration-200 line-clamp-2
+            ${isSelected ? 'text-blue-600/80' : ''}`}
+          >
             {notification.message}
           </p>
           <span className={`text-xs mt-2 block ${themeClasses.textMuted}`}>
