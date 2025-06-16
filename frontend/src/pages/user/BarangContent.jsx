@@ -1,7 +1,7 @@
-import React from 'react';
-import { Building2, Video, Monitor, Network, Zap, MoreHorizontal, MapPin, Filter } from 'lucide-react';
+import React, { useState } from 'react';
+import { Building2, Video, Monitor, Network, Zap, MoreHorizontal, X, Clock, CheckCircle, XCircle, Calendar } from 'lucide-react';
 
-const BarangTable = ({ id, title, Icon, items, isHighlighted }) => (
+const BarangTable = ({ id, title, Icon, items, isHighlighted, onItemClick }) => (
   <div 
     id={id} // Tambahkan ID di sini
     className={`bg-white rounded-xl shadow-sm mb-8 transition-all duration-500 ${
@@ -35,7 +35,7 @@ const BarangTable = ({ id, title, Icon, items, isHighlighted }) => (
 
     <div className="divide-y divide-gray-200">
       {items.map((item, index) => (
-        <div key={index} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+        <div key={index} className="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => onItemClick(item)}>
           <div className="grid grid-cols-4 gap-4 items-center">
             <div className="w-60 h-18 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
               <img
@@ -57,7 +57,145 @@ const BarangTable = ({ id, title, Icon, items, isHighlighted }) => (
   </div>
 );
 
+const TimeSlotModal = ({ isOpen, onClose, selectedItem }) => {
+  // Generate time slots from 07:00 to 21:00
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 7; hour <= 21; hour++) {
+      const startTime = `${hour.toString().padStart(2, '0')}:00`;
+      const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
+      
+      // Fixed dummy data
+      const isAvailable = hour % 2 === 0; // Alternate available slots
+      
+      slots.push({
+        id: `slot-${hour}`,
+        startTime,
+        endTime,
+        timeRange: `${startTime} - ${endTime}`,
+        isAvailable,
+        bookedBy: isAvailable ? null : `User ${Math.floor(Math.random() * 100)}`
+      });
+    }
+    return slots;
+  };
+
+  const [timeSlots] = useState(generateTimeSlots());
+
+  if (!isOpen || !selectedItem) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                <Calendar className="w-8 h-8" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">{selectedItem.name}</h2>
+                <p className="text-blue-100">{selectedItem.description}</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Time Slots */}
+        <div className="p-6 overflow-y-auto max-h-[50vh]">
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="w-5 h-5 text-gray-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Ketersediaan Waktu</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {timeSlots.map((slot) => (
+              <div
+                key={slot.id}
+                className={`p-4 rounded-lg border-2 ${
+                  slot.isAvailable
+                    ? 'border-green-200 bg-green-50'
+                    : 'border-red-200 bg-red-50'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-gray-900">{slot.timeRange}</span>
+                  {slot.isAvailable ? (
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-red-600" />
+                  )}
+                </div>
+                
+                <div className="text-sm">
+                  {slot.isAvailable ? (
+                    <span className="text-green-700 font-medium">Tersedia</span>
+                  ) : (
+                    <div className="text-red-700">
+                      <span className="font-medium">Tidak Tersedia</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Legend */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Keterangan:</h4>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-100 border-2 border-green-200 rounded"></div>
+                <span className="text-gray-600">Tersedia</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-100 border-2 border-red-200 rounded"></div>
+                <span className="text-gray-600">Tidak Tersedia</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">Jumlah Tersedia:</span> {selectedItem.quantity} unit
+            </div>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const BarangContent = ({ selectedCategory }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
   const ruangKelas = [
     { name: 'Ruangan AA 204', quantity: 1, description: 'Ruang belajar Gedung AA', image: '/src/assets/aa-303.png' },
     { name: 'Ruangan AA 205', quantity: 1, description: 'Ruang belajar Gedung AA', image: '/src/assets/aa-303.png'},
@@ -143,11 +281,9 @@ const BarangContent = ({ selectedCategory }) => {
     <div className="flex flex-col items-center justify-center min-h-screen w-screen mt-10 hide-scrollbar">
       <div className="text-center mb-8 hide-scrollbar">
         <h2 className="text-3xl font-bold text-gray-800">Daftar Barang per Kategori</h2>
-        {selectedCategory && (
-          <p className="text-lg text-blue-600 mt-2 font-medium">
-            Menampilkan kategori yang dipilih dari halaman utama
-          </p>
-        )}
+        <p className="text-lg text-blue-600 mt-2">
+          Klik pada item untuk melihat ketersediaan waktu
+        </p>
       </div>
       
       <div className="w-full max-w-7xl space-y-12 hide-scrollbar">
@@ -157,6 +293,7 @@ const BarangContent = ({ selectedCategory }) => {
           Icon={Building2} 
           items={ruangKelas}
           isHighlighted={selectedCategory === 'ruang-kelas'}
+          onItemClick={handleItemClick}
         />
         <BarangTable 
           id="peralatan-av" 
@@ -164,6 +301,7 @@ const BarangContent = ({ selectedCategory }) => {
           Icon={Video} 
           items={peralatanAV}
           isHighlighted={selectedCategory === 'peralatan-av'}
+          onItemClick={handleItemClick}
         />
         <BarangTable 
           id="perangkat-komputer" 
@@ -171,6 +309,7 @@ const BarangContent = ({ selectedCategory }) => {
           Icon={Monitor} 
           items={perangkatKomputer}
           isHighlighted={selectedCategory === 'perangkat-komputer'}
+          onItemClick={handleItemClick}
         />
         <BarangTable 
           id="peralatan-jaringan" 
@@ -178,6 +317,7 @@ const BarangContent = ({ selectedCategory }) => {
           Icon={Network} 
           items={peralatanJaringan}
           isHighlighted={selectedCategory === 'peralatan-jaringan'}
+          onItemClick={handleItemClick}
         />
         <BarangTable 
           id="peralatan-listrik" 
@@ -185,6 +325,7 @@ const BarangContent = ({ selectedCategory }) => {
           Icon={Zap} 
           items={peralatanListrik}
           isHighlighted={selectedCategory === 'peralatan-listrik'}
+          onItemClick={handleItemClick}
         />
         <BarangTable 
           id="lainnya" 
@@ -192,8 +333,14 @@ const BarangContent = ({ selectedCategory }) => {
           Icon={MoreHorizontal} 
           items={lainnya}
           isHighlighted={selectedCategory === 'lainnya'}
+          onItemClick={handleItemClick}
         />
       </div>
+      <TimeSlotModal 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        selectedItem={selectedItem}
+      />
     </div>
   );
 };
