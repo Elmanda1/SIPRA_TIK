@@ -35,7 +35,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Proyektor untuk presentasi, kondisi masih bagus, lengkap dengan kabel HDMI',
       kondisi: 'Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 5.000.000'
     },
     {
       id: 2,
@@ -47,7 +46,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Laptop bekas dalam kondisi baik, digunakan untuk pekerjaan kantor, RAM 8GB',
       kondisi: 'Sangat Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 8.000.000'
     },
     {
       id: 3,
@@ -59,7 +57,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Switch jaringan 24 port, bekas pakai untuk lab jaringan',
       kondisi: 'Cukup',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 3.000.000'
     },
     {
       id: 4,
@@ -71,7 +68,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Microphone wireless untuk acara, masih dalam kondisi bagus',
       kondisi: 'Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 2.500.000'
     },
     {
       id: 5,
@@ -83,7 +79,6 @@ const ValidasiBarang = () => {
       deskripsi: 'PC Desktop All-in-One untuk keperluan kantor, layar 21 inch',
       kondisi: 'Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 6.500.000'
     },
     {
       id: 6,
@@ -95,7 +90,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Router wireless dual band, cocok untuk jaringan kantor kecil',
       kondisi: 'Sangat Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 800.000'
     },
     {
       id: 7,
@@ -107,7 +101,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Speaker aktif untuk acara outdoor, daya 500W',
       kondisi: 'Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 4.000.000'
     },
     {
       id: 8,
@@ -119,7 +112,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Access Point untuk jaringan wireless, jangkauan luas',
       kondisi: 'Cukup',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 1.500.000'
     },
     {
       id: 9,
@@ -131,7 +123,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Monitor LED 24 inch, resolusi Full HD, cocok untuk design',
       kondisi: 'Sangat Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 2.000.000'
     },
     {
       id: 10,
@@ -143,7 +134,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Kamera DSLR untuk dokumentasi acara, lengkap dengan lensa kit',
       kondisi: 'Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 12.000.000'
     },
     {
       id: 11,
@@ -155,7 +145,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Keyboard mechanical dengan switch blue, cocok untuk programmer',
       kondisi: 'Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 1.200.000'
     },
     {
       id: 12,
@@ -167,7 +156,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Patch panel 48 port untuk rack server, kondisi seperti baru',
       kondisi: 'Sangat Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 2.800.000'
     },
     {
       id: 13,
@@ -179,7 +167,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Video camera untuk perekaman acara, dilengkapi tripod',
       kondisi: 'Cukup',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 7.500.000'
     },
     {
       id: 14,
@@ -191,7 +178,6 @@ const ValidasiBarang = () => {
       deskripsi: 'Tablet untuk presentasi mobile, layar 10 inch',
       kondisi: 'Baik',
       foto: '/api/placeholder/300/200',
-      hargaEstimasi: 'Rp 3.500.000'
     }
   ]);
 
@@ -475,7 +461,7 @@ const ValidasiBarang = () => {
       {/* Detail Modal */}
       {showDetailModal && selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className={`rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto ${themeClasses.bgCard}`}>
+          <div className={`rounded-lg max-w-2xl w-full max-h-[100vh] overflow-y-auto ${themeClasses.bgCard}`}>
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className={`text-xl font-bold ${themeClasses.textPrimary}`}>Detail Barang</h2>
@@ -522,10 +508,6 @@ const ValidasiBarang = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={`text-sm font-medium ${themeClasses.textSecondary}`}>Harga Estimasi</label>
-                    <p className={themeClasses.textPrimary}>{selectedItem.hargaEstimasi}</p>
-                  </div>
                   <div>
                     <label className={`text-sm font-medium ${themeClasses.textSecondary}`}>Kondisi</label>
                     <p className={themeClasses.textPrimary}>{selectedItem.kondisi}</p>

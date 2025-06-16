@@ -98,7 +98,86 @@ const DashboardContent = ({ setActiveMenu }) => {
   ];
 
   const recentActivities = [
-    // ... (keep your existing recentActivities array)
+          {
+      id: 1,
+      user: "Muhammad Rafif Dwarka",
+      action: "Meminjam alat",
+      item: "Laptop, Proyektor",
+      time: "2 jam yang lalu",
+      status: "approved"
+    },
+    {
+      id: 2,
+      user: "Falih Elmanda Ghaisan",
+      action: "Pembatalan peminjaman",
+      item: "Ruang GSG 204",
+      time: "4 jam yang lalu",
+      status: "cancelled"
+    },
+    {
+      id: 3,
+      user: "Hari Bernardo",
+      action: "Meminjam ruangan",
+      item: "Ruang GSG 211",
+      time: "6 jam yang lalu",
+      status: "pending"
+    },
+    {
+      id: 4,
+      user: "Muhammad Aurakha Ghazy Zackhary",
+      action: "Meminjam alat",
+      item: "Kamera Digital, Tripod",
+      time: "7 jam yang lalu",
+      status: "approved"
+    },
+    {
+      id: 5,
+      user: "Raden Mas Fidel Khalid Ramadhan",
+      action: "Meminjam ruangan",
+      item: "Ruang AA 204",
+      time: "9 jam yang lalu",
+      status: "cancelled"
+    },
+    {
+      id: 6,
+      user: "Muhammad Rafif Dwarka",
+      action: "Meminjam alat",
+      item: "Speaker",
+      time: "12 jam yang lalu",
+      status: "approved"
+    },
+    {
+      id: 7,
+      user: "Falih Elmanda Ghaisan",
+      action: "Meminjam ruangan",
+      item: "Ruang GSG 202",
+      time: "15 jam yang lalu",
+      status: "pending"
+    },
+    {
+      id: 8,
+      user: "Hari Bernardo",
+      action: "Meminjam alat",
+      item: "Proyektor",
+      time: "1 hari yang lalu",
+      status: "approved"
+    },
+    {
+      id: 9,
+      user: "Muhammad Aurakha Ghazy Zackhary",
+      action: "Pembatalan peminjaman",
+      item: "Ruang GSG 208",
+      time: "2 hari yang lalu",
+      status: "cancelled"
+    },
+    {
+      id: 10,
+      user: "Raden Mas Fidel Khalid Ramadhan",
+      action: "Meminjam ruangan",
+      item: "Ruang GSG 209",
+      time: "3 hari yang lalu",
+      status: "approved"
+    }
   ];
 
   const getStatusColor = (status) => {
