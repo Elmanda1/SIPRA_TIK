@@ -19,7 +19,7 @@ import UserActivityData, {
   userStatistics, 
   calculateUserStats 
 } from './Charts/UserActivityData';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 
 const DashboardContent = ({ setActiveMenu }) => {
   const { themeClasses, isDark } = useTheme();

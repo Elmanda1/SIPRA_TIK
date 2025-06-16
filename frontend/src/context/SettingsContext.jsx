@@ -81,9 +81,7 @@ export const ThemeProvider = ({ children }) => {
   // Determine the actual theme to use
   const getActualTheme = () => {
     const theme = settings.appearance.theme;
-    if (theme === 'auto') {
-      return systemTheme;
-    }
+    
     return theme;
   };
 

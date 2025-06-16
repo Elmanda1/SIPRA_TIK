@@ -1,6 +1,6 @@
 // src/components/admin/ValidasiBarang.jsx
 import React, { useState } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 import { 
   Search, 
   Filter, 

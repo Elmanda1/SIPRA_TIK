@@ -23,7 +23,7 @@ import NotificationsPage from '../../components/admin/NotificationsPage'; // Imp
 import Header from '../../components/admin/Header';
 import LogoutModal from '../../components/common/LogoutModal';
 import logoImg from '../../assets/SIPRATIK.png';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 
 const AdminDashboard = () => {
   document.title = "Admin SIPRATIK";

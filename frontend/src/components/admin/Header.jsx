@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, Bell, User, Search, Settings, LogOut } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 
 // Tambahkan import untuk navigasi
 const Header = ({ onMenuClick, sidebarOpen, onNavigate }) => {

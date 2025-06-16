@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 import { 
   Settings, 
   Bell, 
@@ -396,7 +396,6 @@ const AdminSettings = () => {
           options={[
             { value: 'light', label: 'Light Theme' },
             { value: 'dark', label: 'Dark Theme' },
-            { value: 'auto', label: 'Auto (System)' }
           ]}
         />
       </SettingCard>

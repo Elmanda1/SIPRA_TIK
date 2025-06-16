@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Bell, CheckCircle, AlertCircle, Info, Clock, Search, Filter, Eye, Trash2 } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 
 const NotificationsPage = () => {
   const { themeClasses } = useTheme();

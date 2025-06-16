@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 
 const StatCard = ({ title, value, icon: Icon, change, changeType = 'positive' }) => {
   // Menggunakan theme context

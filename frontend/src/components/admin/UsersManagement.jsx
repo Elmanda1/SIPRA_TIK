@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Plus, User, Mail, Calendar, Edit, Trash2, X, CheckCircle } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/SettingsContext';
 
 const UsersManagement = () => {
   const { themeClasses, isDark } = useTheme();
