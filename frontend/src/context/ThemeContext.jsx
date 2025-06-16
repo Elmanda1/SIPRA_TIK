@@ -45,13 +45,28 @@ export const ThemeProvider = ({ children }) => {
       fromName: 'Admin Dashboard'
     },
     appearance: {
-      theme: 'light',
+      theme: 'light', // 'light', 'dark', or 'auto'
       primaryColor: '#7C3AED',
       sidebarCollapsed: false,
       showAnimations: true,
       compactMode: false
     }
   });
+
+  const [systemTheme, setSystemTheme] = useState('light');
+
+  // Detect system theme preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setSystemTheme(mediaQuery.matches ? 'dark' : 'light');
+
+    const handleChange = (e) => {
+      setSystemTheme(e.matches ? 'dark' : 'light');
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const updateSettings = (category, key, value) => {
     setSettings(prev => ({
@@ -63,8 +78,17 @@ export const ThemeProvider = ({ children }) => {
     }));
   };
 
-  const theme = settings.appearance.theme;
-  const isDark = theme === 'dark';
+  // Determine the actual theme to use
+  const getActualTheme = () => {
+    const theme = settings.appearance.theme;
+    if (theme === 'auto') {
+      return systemTheme;
+    }
+    return theme;
+  };
+
+  const actualTheme = getActualTheme();
+  const isDark = actualTheme === 'dark';
 
   const themeClasses = {
     // Backgrounds
@@ -89,7 +113,8 @@ export const ThemeProvider = ({ children }) => {
 
   return (
     <ThemeContext.Provider value={{
-      theme,
+      theme: settings.appearance.theme, // The user's theme preference
+      actualTheme, // The actual theme being used (resolved from auto)
       isDark,
       settings,
       updateSettings,

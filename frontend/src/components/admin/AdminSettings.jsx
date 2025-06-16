@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { 
   Settings, 
@@ -11,48 +11,9 @@ import {
 } from 'lucide-react';
 
 const AdminSettings = () => {
-  const {updateSettings, themeClasses, isDark } = useTheme();
+  const { settings: contextSettings, updateSettings, themeClasses, isDark } = useTheme();
   const [activeSettingTab, setActiveSettingTab] = useState('general');
-  const [settings, setSettings] = useState({
-    general: {
-      siteName: 'SIPRA TIK',
-      siteDescription: 'Dashboard untuk mengelola peminjaman sarana dan prasarana PNJ jurusan TIK',
-      language: 'id',
-      timezone: 'Asia/Jakarta',
-      dateFormat: 'DD/MM/YYYY',
-      currency: 'IDR'
-    },
-    notifications: {
-      emailNotifications: true,
-      pushNotifications: true,
-      smsNotifications: false,
-      orderNotifications: true,
-      stockAlerts: true,
-      systemUpdates: false
-    },
-    security: {
-      twoFactorAuth: false,
-      sessionTimeout: '30',
-      passwordExpiry: '90',
-      loginAttempts: '5',
-      ipWhitelist: false
-    },
-    email: {
-      smtpServer: 'smtp.gmail.com',
-      smtpPort: '587',
-      smtpUsername: 'admin@example.com',
-      smtpPassword: '••••••••',
-      fromEmail: 'noreply@example.com',
-      fromName: 'Admin Dashboard'
-    },
-    appearance: {
-      theme: 'light',
-      primaryColor: '#7C3AED',
-      sidebarCollapsed: false,
-      showAnimations: true,
-      compactMode: false
-    }
-  });
+  const [settings, setSettings] = useState(contextSettings);
 
   const settingTabs = [
     { id: 'general', name: 'General', icon: Settings },
@@ -63,14 +24,22 @@ const AdminSettings = () => {
   ];
 
   const handleSettingChange = (category, key, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [key]: value
-      }
-    }));
-  };
+        const newSettings = {
+        ...settings,
+        [category]: {
+          ...settings[category],
+          [key]: value
+        }
+      };
+
+    
+        setSettings(newSettings);
+        updateSettings(category, key, value); // Update context immediately
+      };
+
+        useEffect(() => {
+        setSettings(contextSettings);
+      }, [contextSettings]);
 
   const handleSaveSettings = () => {
     // Simpan settings ke backend atau localStorage
@@ -426,26 +395,6 @@ const AdminSettings = () => {
             { value: 'auto', label: 'Auto (System)' }
           ]}
         />
-        <div className="mb-4">
-          <label className={`block text-sm font-medium mb-2 ${
-            isDark ? 'text-gray-300' : 'text-gray-700'
-          }`}>Primary Color</label>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              value={settings.appearance.primaryColor}
-              onChange={(e) => handleSettingChange('appearance', 'primaryColor', e.target.value)}
-              className={`w-12 h-12 rounded-lg border cursor-pointer ${
-                isDark 
-                  ? 'border-zinc-600 bg-zinc-700' 
-                  : 'border-blue-300 bg-white'
-              }`}
-            />
-            <span className={`text-sm ${
-              isDark ? 'text-gray-400' : 'text-gray-500'
-            }`}>{settings.appearance.primaryColor}</span>
-          </div>
-        </div>
       </SettingCard>
 
       <SettingCard title="Layout Preferences">
