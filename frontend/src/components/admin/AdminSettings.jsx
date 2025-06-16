@@ -41,16 +41,10 @@ const AdminSettings = () => {
         setSettings(contextSettings);
       }, [contextSettings]);
 
-  const handleSaveSettings = () => {
-    // Simpan settings ke backend atau localStorage
-    console.log('Saving settings:', settings);
-    alert('Settings berhasil disimpan!');
-  };
-
   const handleResetSettings = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua pengaturan?')) {
-      // Reset to default values
-      setSettings({
+      // Default settings dengan tema light
+      const defaultSettings = {
         general: {
           siteName: 'SIPRA TIK',
           siteDescription: 'Dashboard untuk mengelola peminjaman sarana dan prasarana PNJ jurusan TIK',
@@ -83,12 +77,22 @@ const AdminSettings = () => {
           fromName: 'Admin Dashboard'
         },
         appearance: {
-          theme: 'light',
+          theme: 'light', // Pastikan tema di-set ke light
           primaryColor: '#7C3AED',
           sidebarCollapsed: false,
           showAnimations: true,
           compactMode: false
         }
+      };
+
+      // Reset local state
+      setSettings(defaultSettings);
+      
+      // Update semua pengaturan di context
+      Object.keys(defaultSettings).forEach(category => {
+        Object.keys(defaultSettings[category]).forEach(key => {
+          updateSettings(category, key, defaultSettings[category][key]);
+        });
       });
     }
   };
@@ -475,7 +479,7 @@ const AdminSettings = () => {
           {activeSettingTab === 'email' && renderEmailSettings()}
           {activeSettingTab === 'appearance' && renderAppearanceSettings()}
 
-          {/* Save Button */}
+          {/* Reset Button */}
           <div className="mt-6 flex justify-end gap-3">
             <button 
               onClick={handleResetSettings}
@@ -487,13 +491,6 @@ const AdminSettings = () => {
             >
               <RotateCcw className="w-4 h-4" />
               Reset
-            </button>
-            <button 
-              onClick={handleSaveSettings}
-              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
-            >
-              <Save className="w-4 h-4" />
-              Save Changes
             </button>
           </div>
         </div>
