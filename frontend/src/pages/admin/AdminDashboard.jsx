@@ -9,7 +9,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  PackageCheck // Icon untuk validasi barang
+  PackageCheck,
+  Bell // Tambahkan import Bell
 } from 'lucide-react';
 
 // Update imports
@@ -18,6 +19,7 @@ import AnalyticsContent from '../../components/admin/AnalyticsContent';
 import UsersManagement from '../../components/admin/UsersManagement';
 import AdminSettings from '../../components/admin/AdminSettings';
 import ValidasiBarang from '../../components/admin/ValidasiBarang'; // Import komponen baru
+import NotificationsPage from '../../components/admin/NotificationsPage'; // Import NotificationsPage
 import Header from '../../components/admin/Header';
 import LogoutModal from '../../components/common/LogoutModal';
 import logoImg from '../../assets/SIPRATIK.png';
@@ -41,28 +43,33 @@ const AdminDashboard = () => {
     }
   }, [currentPage]);
 
+  // Update menuItems array
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'validasi-barang', label: 'Validasi Barang', icon: PackageCheck },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'notifications', label: 'Notifikasi', icon: Bell }, // Tambahkan menu notifikasi
     { id: 'users', label: 'Users', icon: Users },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
+  // Update renderContent function (pastikan sudah ada)
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DashboardContent setActiveMenu={setCurrentPage} />; // Pass setCurrentPage as setActiveMenu
+        return <DashboardContent setActiveMenu={setCurrentPage} />;
       case 'validasi-barang':
         return <ValidasiBarang />;
       case 'analytics':
         return <AnalyticsContent />;
+      case 'notifications':
+        return <NotificationsPage />;
       case 'users':
         return <UsersManagement />;
       case 'settings':
         return <AdminSettings />;
       default:
-        return <DashboardContent setActiveMenu={setCurrentPage} />; // Pass setCurrentPage as setActiveMenu
+        return <DashboardContent setActiveMenu={setCurrentPage} />;
     }
   };
 
@@ -196,8 +203,9 @@ const AdminDashboard = () => {
       }`}>
         {/* Enhanced Header Component */}
         <Header 
-          onMenuClick={handleMenuClick}
+          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
           sidebarOpen={sidebarOpen}
+          onNavigate={(page) => setCurrentPage(page)} 
         />
         
         {/* Main Content dengan hide scrollbar */}

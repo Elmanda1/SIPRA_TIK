@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Menu, Bell, User, Search, Settings, LogOut } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
-const Header = ({ onMenuClick, sidebarOpen }) => {
+// Tambahkan import untuk navigasi
+const Header = ({ onMenuClick, sidebarOpen, onNavigate }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -15,6 +16,12 @@ const Header = ({ onMenuClick, sidebarOpen }) => {
     { id: 2, title: "Update sistem berhasil", time: "1 jam lalu" },
     { id: 3, title: "Backup data selesai", time: "3 jam lalu" },
   ];
+
+  // Handler untuk navigasi
+  const handleNavigation = (page) => {
+    onNavigate(page);
+    setShowUserMenu(false);
+  };
 
   return (
     <header className={`shadow-sm border-b px-4 lg:px-6 py-4 ${themeClasses.bgCard} ${themeClasses.border}`}>
@@ -55,38 +62,6 @@ const Header = ({ onMenuClick, sidebarOpen }) => {
             )}
           </div>
 
-          {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className={`p-2 rounded-lg relative focus:outline-none ${themeClasses.bgCard} ${themeClasses.hoverCard}`}
-            >
-              <Bell className={`w-5 h-5 ${themeClasses.textSecondary}`} />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-
-            {showNotifications && (
-              <div className={`absolute right-0 mt-2 w-72 rounded-lg shadow-lg border z-50 ${themeClasses.bgCard} ${themeClasses.border}`}>
-                <div className={`p-3 border-b ${themeClasses.border}`}>
-                  <h3 className={`font-medium ${themeClasses.textPrimary}`}>Notifikasi</h3>
-                </div>
-                <div className="max-h-64 overflow-y-auto">
-                  {notifications.map((notif) => (
-                    <div key={notif.id} className={`p-3 border-b last:border-b-0 ${themeClasses.hoverCard} ${themeClasses.border}`}>
-                      <p className={`text-sm font-medium ${themeClasses.textPrimary}`}>{notif.title}</p>
-                      <p className={`text-xs mt-1 ${themeClasses.textMuted}`}>{notif.time}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className={`p-3 border-t ${themeClasses.border}`}>
-                  <button className={`w-full text-center text-sm text-blue-600 hover:text-blue-700 ${themeClasses.bgCard}`}>
-                    Lihat semua
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* User Profile */}
           <div className="relative">
             <button
@@ -103,11 +78,17 @@ const Header = ({ onMenuClick, sidebarOpen }) => {
                   <p className={`text-sm ${themeClasses.textSecondary}`}>admin@sipratik.go.id</p>
                 </div>
                 <div className="p-2">
-                  <button className={`w-full flex items-center space-x-2 px-3 py-2 text-left rounded-lg ${themeClasses.bgCard} ${themeClasses.hoverCard}`}>
+                  <button 
+                    onClick={() => handleNavigation('profile')} 
+                    className={`w-full flex items-center space-x-2 px-3 py-2 text-left rounded-lg ${themeClasses.bgCard} ${themeClasses.hoverCard}`}
+                  >
                     <User className={`w-4 h-4 ${themeClasses.textMuted}`} />
-                    <span className={`text-sm ${themeClasses.textSecondary}`}>Profil Saya</span>
+                    <span className={`text-sm ${themeClasses.textSecondary}`}>Dashboard Admin</span>
                   </button>
-                  <button className={`w-full flex items-center space-x-2 px-3 py-2 text-left rounded-lg ${themeClasses.bgCard} ${themeClasses.hoverCard}`}>
+                  <button 
+                    onClick={() => handleNavigation('settings')} 
+                    className={`w-full flex items-center space-x-2 px-3 py-2 text-left rounded-lg ${themeClasses.bgCard} ${themeClasses.hoverCard}`}
+                  >
                     <Settings className={`w-4 h-4 ${themeClasses.textMuted}`} />
                     <span className={`text-sm ${themeClasses.textSecondary}`}>Pengaturan</span>
                   </button>
