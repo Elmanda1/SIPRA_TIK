@@ -5,6 +5,8 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 import logoImg from '../../assets/SIPRATIK.png' ;
 import { RefreshCw, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext'; // Update path
+import { useTheme } from '../../context/SettingsContext';
 
 // Alert Modal Component
 const AlertModal = ({ 
@@ -12,7 +14,7 @@ const AlertModal = ({
   onClose, 
   message = "Password salah. Silakan coba lagi.",
   attemptCount = 0,
-  maxAttempts = 5,
+  maxAttempts,
   onResetPassword
 }) => {
   if (!isOpen) return null;
@@ -35,7 +37,7 @@ const AlertModal = ({
 
   const getMessage = () => {
     if (isMaxAttemptReached) {
-      return "Anda telah mencoba login sebanyak 3 kali dengan password yang salah. Silakan reset password Anda untuk melanjutkan.";
+      return "Anda telah mencoba login sebanyak ${maxAttempts} dengan password yang salah. Silakan reset password Anda untuk melanjutkan.";
     }
     return `${message} Sisa percobaan: ${remainingAttempts}`;
   };
@@ -115,8 +117,9 @@ const AlertModal = ({
 const LoginPage = () => {
   document.title = "Login";
   const navigate = useNavigate();
-  const { login, credentials, error: authError, loading } = useAuth();
-  
+  const { login, credentials } = useAuth();
+  const { settings } = useTheme(); // Get settings from ThemeContext
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -148,6 +151,8 @@ const LoginPage = () => {
       return () => clearInterval(timer);
     }
   }, [isBlocked, blockTimeRemaining]);
+
+  const maxLoginAttempts = parseInt(settings?.security?.loginAttempts);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -314,10 +319,10 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {loginAttempts > 0 && loginAttempts < 3 && (
+            {loginAttempts > 0 && loginAttempts < maxLoginAttempts && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
                 <p className="text-xs text-yellow-800">
-                  Peringatan: {loginAttempts}/3 percobaan login gagal
+                  Peringatan: {loginAttempts}/{maxLoginAttempts} percobaan login gagal
                 </p>
               </div>
             )}
@@ -360,7 +365,7 @@ const LoginPage = () => {
         onClose={handleCloseAlert}
         message="Username atau password salah. Silakan coba lagi."
         attemptCount={loginAttempts}
-        maxAttempts={3}
+        maxAttempts={maxLoginAttempts}
         onResetPassword={handleResetPassword}
       />
     </div>

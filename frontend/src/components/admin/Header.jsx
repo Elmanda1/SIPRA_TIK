@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { Menu, Bell, User, Search, Settings, LogOut } from 'lucide-react';
+import { useTheme } from '../../context/SettingsContext';
 
-const Header = ({ onMenuClick, sidebarOpen }) => {
+// Tambahkan import untuk navigasi
+const Header = ({ onMenuClick, sidebarOpen, onNavigate }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  
+  // Menggunakan theme context
+  const { themeClasses, isDark } = useTheme();
 
   const notifications = [
     { id: 1, title: "Laporan baru diterima", time: "2 menit lalu" },
@@ -12,18 +17,24 @@ const Header = ({ onMenuClick, sidebarOpen }) => {
     { id: 3, title: "Backup data selesai", time: "3 jam lalu" },
   ];
 
+  // Handler untuk navigasi
+  const handleNavigation = (page) => {
+    onNavigate(page);
+    setShowUserMenu(false);
+  };
+
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 px-4 lg:px-6 py-4">
+    <header className={`shadow-sm border-b px-4 lg:px-6 py-4 ${themeClasses.bgCard} ${themeClasses.border}`}>
       <div className="flex h-[56px] items-center justify-between">
         {/* Left Section */}
         <div className="flex items-center space-x-4">
           <button
             onClick={onMenuClick}
-            className="p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+            className={`p-2 rounded-lg lg:hidden ${themeClasses.hoverCard}`}
           >
             <Menu className="w-5 h-5" />
           </button>
-          <h1 className="text-[38px] font-extrabold text-gray-900 ">Admin SIPRATIK</h1>
+          <h1 className={`text-[38px] font-extrabold ${themeClasses.textPrimary}`}>Admin SIPRATIK</h1>
         </div>
 
         {/* Right Section */}
@@ -32,52 +43,20 @@ const Header = ({ onMenuClick, sidebarOpen }) => {
           <div className="relative">
             <button
               onClick={() => setShowSearch(!showSearch)}
-              className="p-2 rounded-lg bg-white hover:bg-gray-100 relative focus:outline-none"
+              className={`p-2 rounded-lg relative focus:outline-none ${themeClasses.bgCard} ${themeClasses.hoverCard}`}
             >
-              <Search className="w-5 h-5 text-gray-600" />
+              <Search className={`w-5 h-5 ${themeClasses.textSecondary}`} />
             </button>
             
             {showSearch && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className={`absolute right-0 mt-2 w-80 rounded-lg shadow-lg border z-50 ${themeClasses.bgCard} ${themeClasses.border}`}>
                 <div className="p-3">
                   <input
                     type="text"
                     placeholder="Cari data, laporan, atau dokumen..."
-                    className="w-full px-3 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bgInput} ${themeClasses.borderInput} ${themeClasses.textPrimary} placeholder-gray-400`}
                     autoFocus
                   />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-lg bg-white hover:bg-gray-100 relative focus:outline-none"
-            >
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                <div className="p-3 border-b border-gray-100">
-                  <h3 className="font-medium text-gray-900">Notifikasi</h3>
-                </div>
-                <div className="max-h-64 overflow-y-auto">
-                  {notifications.map((notif) => (
-                    <div key={notif.id} className="p-3 hover:bg-gray-50 border-b border-gray-50 last:border-b-0">
-                      <p className="text-sm font-medium text-gray-900">{notif.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="p-3 border-t border-gray-100">
-                  <button className="w-full text-center text-sm bg-white text-blue-600 hover:text-blue-700">
-                    Lihat semua
-                  </button>
                 </div>
               </div>
             )}
@@ -87,27 +66,33 @@ const Header = ({ onMenuClick, sidebarOpen }) => {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="p-2 rounded-lg bg-white hover:bg-gray-100 relative focus:outline-none"
+              className={`p-2 rounded-lg relative focus:outline-none ${themeClasses.bgCard} ${themeClasses.hoverCard}`}
             >
-              <User className="w-5 h-5 text-gray-600" />
+              <User className={`w-5 h-5 ${themeClasses.textSecondary}`} />
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                <div className="p-4 border-b border-gray-100">
-                  <p className="font-medium text-gray-900">Admin User</p>
-                  <p className="text-sm text-gray-500">admin@sipratik.go.id</p>
+              <div className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg border z-50 ${themeClasses.bgCard} ${themeClasses.border}`}>
+                <div className={`p-4 border-b ${themeClasses.border}`}>
+                  <p className={`font-medium ${themeClasses.textPrimary}`}>Admin User</p>
+                  <p className={`text-sm ${themeClasses.textSecondary}`}>admin@sipratik.go.id</p>
                 </div>
                 <div className="p-2">
-                  <button className="w-full flex items-center space-x-2 px-3 py-2 text-left bg-white hover:bg-gray-50 rounded-lg">
-                    <User className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">Profil Saya</span>
+                  <button 
+                    onClick={() => handleNavigation('profile')} 
+                    className={`w-full flex items-center space-x-2 px-3 py-2 text-left rounded-lg ${themeClasses.bgCard} ${themeClasses.hoverCard}`}
+                  >
+                    <User className={`w-4 h-4 ${themeClasses.textMuted}`} />
+                    <span className={`text-sm ${themeClasses.textSecondary}`}>Dashboard Admin</span>
                   </button>
-                  <button className="w-full flex items-center space-x-2 px-3 py-2 text-left bg-white hover:bg-gray-50 rounded-lg">
-                    <Settings className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">Pengaturan</span>
+                  <button 
+                    onClick={() => handleNavigation('settings')} 
+                    className={`w-full flex items-center space-x-2 px-3 py-2 text-left rounded-lg ${themeClasses.bgCard} ${themeClasses.hoverCard}`}
+                  >
+                    <Settings className={`w-4 h-4 ${themeClasses.textMuted}`} />
+                    <span className={`text-sm ${themeClasses.textSecondary}`}>Pengaturan</span>
                   </button>
-                  <hr className="my-2" />
+                  <hr className={`my-2 ${isDark ? 'border-zinc-600' : 'border-gray-200'}`} />
                 </div>
               </div>
             )}

@@ -20,7 +20,7 @@ const BookingTable = ({ title, bookings, handleBookingClick }) => (
         <div className='ml-5'>Aksi</div>
       </div>
     </div>
-    <div className="divide-y divide-gray-200 overflow-y-auto hide-scrollbar">
+    <div className="divide-y divide-gray-200 overflow-y-auto ">
       {bookings.length === 0 && (
         <div className="px-6 py-8 text-center text-gray-400">Tidak ada data</div>
       )}
@@ -225,7 +225,7 @@ const HistoryContent = ({
       {/* Modal untuk detail booking biasa */}
       {selectedBooking && !showPenaltyDetailModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 overflow-y-auto hide-scrollbar">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
             <h3 className="text-lg text-black font-bold mb-4">Detail Peminjaman</h3>
             <div className="text-black space-y-3">
               <div>
@@ -278,7 +278,7 @@ const HistoryContent = ({
       {/* Modal khusus untuk detail penalty */}
       {showPenaltyDetailModal && selectedBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[95vh] overflow-y-auto hide-scrollbar">
+          <div className="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[95vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
                 <AlertCircle className="w-6 h-6 text-orange-600" />
@@ -415,7 +415,7 @@ const HistoryContent = ({
       {/* Penalty Confirmation Modal */}
       {showPenaltyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[95vh] overflow-y-auto hide-scrollbar">
+          <div className="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 max-h-[95vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                 <AlertCircle className="w-6 h-6 text-yellow-600" />

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import { useTheme } from '../../context/SettingsContext';
 import { 
   Settings, 
   Bell, 
@@ -10,47 +11,9 @@ import {
 } from 'lucide-react';
 
 const AdminSettings = () => {
+  const { settings: contextSettings, updateSettings, themeClasses, isDark } = useTheme();
   const [activeSettingTab, setActiveSettingTab] = useState('general');
-  const [settings, setSettings] = useState({
-    general: {
-      siteName: 'SIPRA TIK',
-      siteDescription: 'Dashboard untuk mengelola peminjaman sarana dan prasarana PNJ jurusan TIK',
-      language: 'id',
-      timezone: 'Asia/Jakarta',
-      dateFormat: 'DD/MM/YYYY',
-      currency: 'IDR'
-    },
-    notifications: {
-      emailNotifications: true,
-      pushNotifications: true,
-      smsNotifications: false,
-      orderNotifications: true,
-      stockAlerts: true,
-      systemUpdates: false
-    },
-    security: {
-      twoFactorAuth: false,
-      sessionTimeout: '30',
-      passwordExpiry: '90',
-      loginAttempts: '5',
-      ipWhitelist: false
-    },
-    email: {
-      smtpServer: 'smtp.gmail.com',
-      smtpPort: '587',
-      smtpUsername: 'admin@example.com',
-      smtpPassword: '••••••••',
-      fromEmail: 'noreply@example.com',
-      fromName: 'Admin Dashboard'
-    },
-    appearance: {
-      theme: 'light',
-      primaryColor: '#7C3AED',
-      sidebarCollapsed: false,
-      showAnimations: true,
-      compactMode: false
-    }
-  });
+  const [settings, setSettings] = useState(contextSettings);
 
   const settingTabs = [
     { id: 'general', name: 'General', icon: Settings },
@@ -61,25 +24,27 @@ const AdminSettings = () => {
   ];
 
   const handleSettingChange = (category, key, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [key]: value
-      }
-    }));
-  };
+        const newSettings = {
+        ...settings,
+        [category]: {
+          ...settings[category],
+          [key]: value
+        }
+      };
 
-  const handleSaveSettings = () => {
-    // Simpan settings ke backend atau localStorage
-    console.log('Saving settings:', settings);
-    alert('Settings berhasil disimpan!');
-  };
+    
+        setSettings(newSettings);
+        updateSettings(category, key, value); // Update context immediately
+      };
+
+        useEffect(() => {
+        setSettings(contextSettings);
+      }, [contextSettings]);
 
   const handleResetSettings = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua pengaturan?')) {
-      // Reset to default values
-      setSettings({
+      // Default settings dengan tema light
+      const defaultSettings = {
         general: {
           siteName: 'SIPRA TIK',
           siteDescription: 'Dashboard untuk mengelola peminjaman sarana dan prasarana PNJ jurusan TIK',
@@ -112,61 +77,85 @@ const AdminSettings = () => {
           fromName: 'Admin Dashboard'
         },
         appearance: {
-          theme: 'light',
+          theme: 'light', // Pastikan tema di-set ke light
           primaryColor: '#7C3AED',
           sidebarCollapsed: false,
           showAnimations: true,
           compactMode: false
         }
+      };
+
+      // Reset local state
+      setSettings(defaultSettings);
+      
+      // Update semua pengaturan di context
+      Object.keys(defaultSettings).forEach(category => {
+        Object.keys(defaultSettings[category]).forEach(key => {
+          updateSettings(category, key, defaultSettings[category][key]);
+        });
       });
     }
   };
 
   const SettingCard = ({ title, children }) => (
-    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">{title}</h3>
+    <div className={`p-6 rounded-xl shadow-lg border mb-6 ${themeClasses.bgCard} ${themeClasses.border}`}>
+      <h3 className={`text-lg font-semibold mb-4 ${themeClasses.textPrimary}`}>{title}</h3>
       {children}
     </div>
   );
 
   const InputField = ({ label, type = 'text', value, onChange, placeholder }) => (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      <label className={`block text-sm font-medium mb-2 ${themeClasses.textSecondary}`}>{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bgInput} ${themeClasses.borderInput} ${themeClasses.textPrimary} placeholder-gray-400`}
       />
     </div>
   );
 
   const SelectField = ({ label, value, onChange, options }) => (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      <label className={`block text-sm font-medium mb-2 ${
+        isDark ? 'text-gray-300' : 'text-gray-700'
+      }`}>{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 bg-white border border-blue-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+          isDark 
+            ? 'bg-zinc-700 border-zinc-600 text-white' 
+            : 'bg-white border-blue-300 text-gray-800'
+        }`}
       >
         {options.map(option => (
-          <option key={option.value} value={option.value} className="bg-white text-gray-800">{option.label}</option>
+          <option key={option.value} value={option.value} className={
+            isDark ? 'bg-zinc-700 text-white' : 'bg-white text-gray-800'
+          }>{option.label}</option>
         ))}
       </select>
     </div>
   );
 
   const ToggleField = ({ label, description, checked, onChange }) => (
-    <div className="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0">
+    <div className={`flex items-center justify-between py-3 border-b last:border-b-0 ${
+      isDark ? 'border-zinc-600' : 'border-gray-200'
+    }`}>
       <div>
-        <h4 className="text-sm font-medium text-gray-800">{label}</h4>
-        {description && <p className="text-sm text-gray-500">{description}</p>}
+        <h4 className={`text-sm font-medium ${
+          isDark ? 'text-white' : 'text-gray-800'
+        }`}>{label}</h4>
+        {description && <p className={`text-sm ${
+          isDark ? 'text-gray-400' : 'text-gray-500'
+        }`}>{description}</p>}
       </div>
       <button
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-          checked ? 'bg-blue-600' : 'bg-gray-300'
+          checked ? 'bg-blue-600' : (isDark ? 'bg-zinc-600' : 'bg-gray-300')
         }`}
       >
         <span
@@ -407,21 +396,8 @@ const AdminSettings = () => {
           options={[
             { value: 'light', label: 'Light Theme' },
             { value: 'dark', label: 'Dark Theme' },
-            { value: 'auto', label: 'Auto (System)' }
           ]}
         />
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              value={settings.appearance.primaryColor}
-              onChange={(e) => handleSettingChange('appearance', 'primaryColor', e.target.value)}
-              className="w-12 h-12 rounded-lg border border-blue-300 cursor-pointer bg-white"
-            />
-            <span className="text-sm text-gray-500">{settings.appearance.primaryColor}</span>
-          </div>
-        </div>
       </SettingCard>
 
       <SettingCard title="Layout Preferences">
@@ -448,17 +424,27 @@ const AdminSettings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
-        <p className="text-gray-600">Kelola pengaturan sistem dan preferensi Anda</p>
+    <div className={`min-h-screen p-6${themeClasses.bgPrimary}`}>
+      <div className="mb-8">
+        <h1 className={`text-4xl font-bold mb-2 ${
+          isDark ? 'text-white' : 'text-gray-800'
+        }`}>Settings</h1>
+        <p className={`text-xl ${
+          isDark ? 'text-gray-300' : 'text-gray-600'
+        }`}>Kelola pengaturan sistem dan preferensi Anda</p>
       </div>
       
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Settings Navigation */}
         <div className="lg:w-64">
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Categories</h3>
+          <div className={`rounded-xl shadow-lg border p-4 ${
+            isDark 
+              ? 'bg-zinc-800 border-zinc-700' 
+              : 'bg-white border-gray-200'
+          }`}>
+            <h3 className={`text-lg font-semibold mb-4 ${
+              isDark ? 'text-white' : 'text-gray-800'
+            }`}>Categories</h3>
             <nav className="space-y-1">
               {settingTabs.map(tab => {
                 const Icon = tab.icon;
@@ -466,10 +452,13 @@ const AdminSettings = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveSettingTab(tab.id)}
-                    className={`w-full bg-blue border-blue-200 flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeSettingTab === tab.id
-                      ? 'bg-blue-100 text-blue-700' 
-                      : 'text-gray-700 bg-white hover:bg-gray-100'
+                        ? 'bg-blue-100 text-blue-700' 
+                        : (isDark 
+                            ? 'text-gray-300 bg-zinc-800 hover:bg-zinc-700' 
+                            : 'text-gray-700 bg-white hover:bg-gray-100'
+                          )
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -489,21 +478,18 @@ const AdminSettings = () => {
           {activeSettingTab === 'email' && renderEmailSettings()}
           {activeSettingTab === 'appearance' && renderAppearanceSettings()}
 
-          {/* Save Button */}
+          {/* Reset Button */}
           <div className="mt-6 flex justify-end gap-3">
             <button 
               onClick={handleResetSettings}
-              className="flex items-center gap-2 px-6 py-2 border bg-white border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+              className={`flex items-center gap-2 px-6 py-2 border rounded-lg transition-colors ${
+                isDark 
+                  ? 'bg-zinc-800 border-zinc-600 text-gray-300 hover:bg-zinc-700 hover:text-white' 
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800'
+              }`}
             >
               <RotateCcw className="w-4 h-4" />
               Reset
-            </button>
-            <button 
-              onClick={handleSaveSettings}
-              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
-            >
-              <Save className="w-4 h-4" />
-              Save Changes
             </button>
           </div>
         </div>

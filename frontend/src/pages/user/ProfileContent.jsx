@@ -402,7 +402,7 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative">
         <button
           onClick={onClose}
@@ -438,7 +438,7 @@ const ProfileContent = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center w-full min-h-[80vh] py-10 overflow-y-auto">
+      <div className="flex flex-col items-center w-screen min-h-screen py-10 hide-scrollbar overflow-x-hidden">
         <div className='flex flex-row items-start justify-start w-full max-w-4xl'>
           <h2 className="text-3xl font-bold mb-4 text-gray-800">My Profile</h2>
         </div>

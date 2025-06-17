@@ -3,8 +3,12 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Import komponen user yang sudah ada
 import UserDashboard from '../pages/user/UserDashboard';
-import Home from '../pages/user/HomeContent';
-
+import ProfileContent from '../pages/user/ProfileContent';
+import HistoryContent from '../pages/user/HistoryContent';
+import BarangContent from '../pages/user/BarangContent';
+import PinjamContent from '../pages/user/PinjamContent';
+import KetentuanContent from '../pages/user/KetentuanContent';
+import HomeContent from '../pages/user/HomeContent';
 const UserRoutes = () => (
   <Routes>
     {/* Default user route ke dashboard */}
