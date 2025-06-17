@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Filter, AlertCircle, Clock, DollarSign, Camera } from 'lucide-react';
 import { usePeminjaman } from '../../context/PeminjamanContext';
 
@@ -206,6 +206,16 @@ const HistoryContent = ({
   const formatDate = (dateString) => {
     return dateString || 'Tidak tersedia';
   };
+
+  // Bug: Tidak membersihkan URL object ketika component unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup function
+      if (penaltyData.photoPreview) {
+        URL.revokeObjectURL(penaltyData.photoPreview);
+      }
+    };
+  }, [penaltyData.photoPreview]);
 
   return (
     <div className='mt-10'>

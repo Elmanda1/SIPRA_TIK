@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Import komponen user yang sudah ada
 import UserDashboard from '../pages/user/UserDashboard';
-import Home from '../pages/user/Home';
+import Home from '../pages/user/HomeContent';
 
 const UserRoutes = () => (
   <Routes>
