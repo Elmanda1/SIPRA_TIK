@@ -105,7 +105,7 @@ const AdminDashboard = () => {
   return isActive
     ? (isDark 
         ? 'bg-blue-100 text-blue-700'
-        : 'bg-blue-900/30 text-blue-400'
+        : 'bg-blue-100 text-blue-700'
         )
     : (isDark 
         ? 'text-gray-300 bg-zinc-800 hover:bg-zinc-700' 
