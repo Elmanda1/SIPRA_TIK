@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, Lock, User, AlertTriangle, RefreshCw, X, Settings, BookOpen, FileText, BarChart3, Users, Home, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { User, Lock, AlertCircle } from 'lucide-react';
+import LoadingSpinner from '../common/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 import logoImg from '../../assets/SIPRATIK.png' ;
-import { useAuth } from '../../context/AuthContext'; // Update path
+import { RefreshCw, X } from 'lucide-react';
 
 // Alert Modal Component
 const AlertModal = ({ 
@@ -113,7 +115,7 @@ const AlertModal = ({
 const LoginPage = () => {
   document.title = "Login";
   const navigate = useNavigate();
-  const { login, credentials } = useAuth();
+  const { login, credentials, error: authError, loading } = useAuth();
   
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -121,28 +123,72 @@ const LoginPage = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
   const [selectedRole, setSelectedRole] = useState('');
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (authError) {
+      setShowAlert(true);
+    }
+  }, [authError]);
+
+  useEffect(() => {
+    if (isBlocked && blockTimeRemaining > 0) {
+      const timer = setInterval(() => {
+        setBlockTimeRemaining(time => {
+          if (time <= 1) {
+            setIsBlocked(false);
+            return 0;
+          }
+          return time - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [isBlocked, blockTimeRemaining]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Map role dari form ke role system
-    const systemRole = selectedRole === 'mahasiswa' ? 'user' : selectedRole;
-    
-    const user = credentials.find(
-      cred => cred.username === username && 
-             cred.password === password &&
-             cred.role === systemRole
-    );
+    if (isBlocked) return;
 
-    if (user) {
-      login(user);
-      // Navigasi sesuai role system
-      navigate(systemRole === 'admin' ? '/admin/dashboard' : '/user/dashboard');
-    } else {
-      const newAttempts = loginAttempts + 1;
-      setLoginAttempts(newAttempts);
-      if (newAttempts >= 3) setIsBlocked(true);
+    // Validasi role harus dipilih
+    if (!selectedRole) {
+      setError('Silakan pilih role terlebih dahulu.');
+      setShowAlert(true);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Login gagal');
+        setShowAlert(true);
+        setLoginAttempts((prev) => prev + 1);
+        setPassword(''); // Bersihkan password saat gagal
+        if (loginAttempts + 1 >= 3) setIsBlocked(true);
+      } else {
+        login(data.user);
+        // Redirect sesuai role dari backend
+        if (data.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else if (data.user.role === 'mahasiswa') {
+          navigate('/user/dashboard');
+        } else {
+          navigate('/');
+        }
+      }
+    } catch (err) {
+      setError('Network error');
       setShowAlert(true);
     }
   };
@@ -182,6 +228,20 @@ const LoginPage = () => {
          />
             <p className="text-lg text-gray-700 mt-5">Sistem Informasi Peminjaman Sarana dan Prasarana TIK</p> {/* Increased text size */}
           </div>
+
+          {showAlert && (
+          <div className="mb-4 p-4 rounded-lg bg-red-50 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-red-800">{error}</p>
+              {isBlocked && (
+                <p className="text-red-600 mt-1">
+                  Tunggu {Math.floor(blockTimeRemaining / 60)} menit {blockTimeRemaining % 60} detik
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Role Selection */}
@@ -272,14 +332,14 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              disabled={isBlocked}
+              disabled={isBlocked || loading}
               className={`w-full py-3 px-4 min-h-16 text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg ${
                 isBlocked 
                   ? 'bg-gray-400 cursor-not-allowed text-white' 
                   : ' bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
               }`}
             >
-              {isBlocked ? 'Akun Terblokir' : 'Login'}
+              {loading ? <LoadingSpinner /> : isBlocked ? 'Akun Terblokir' : 'Login'}
             </button>
 
             <div className="text-center mt-4">

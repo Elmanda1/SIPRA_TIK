@@ -1,109 +1,205 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcrypt';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from '../utils/jwt.js';
+import jwt from 'jsonwebtoken';
 
-const SALT_ROUNDS = 12;
-
-// REGISTER
-export async function register({ name, username, email, password, role }) {
+export async function login({ username, password }) {
   try {
-    const hashed = await bcrypt.hash(password, SALT_ROUNDS);
+    // Basic validation
+    if (!username || !password) {
+      throw new Error('Username dan password harus diisi');
+    }
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        username,
-        email,
-        password: hashed,
-        role,
-      },
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: {
+        username: true,
+        password: true,
+        role: true,
+        isVerified: true,
+        isBlocked: true,
+        lastLoginAttempt: true,
+        loginAttempts: true
+      }
     });
 
-    const payload = { id: user.id, email: user.email, role: user.role };
+    if (!user) {
+      throw new Error('Username atau password salah');
+    }
 
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
+    // Check if account is blocked
+    if (user.isBlocked) {
+      // Check if block duration (1 hour) has passed
+      const blockDuration = 60 * 60 * 1000; // 1 hour in milliseconds
+      const now = new Date();
+      const lastAttempt = user.lastLoginAttempt;
 
-    // Save session
-    await prisma.session.create({
+      if (lastAttempt && (now - new Date(lastAttempt)) < blockDuration) {
+        throw new Error('Akun diblokir. Silakan coba lagi dalam 1 jam');
+      } else {
+        // Reset block if duration has passed
+        await prisma.user.update({
+          where: { username },
+          data: {
+            isBlocked: false,
+            loginAttempts: 0
+          }
+        });
+      }
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    
+    if (!isValidPassword) {
+      // Increment login attempts
+      const attempts = (user.loginAttempts || 0) + 1;
+      const shouldBlock = attempts >= 3;
+
+      await prisma.user.update({
+        where: { username },
+        data: {
+          loginAttempts: attempts,
+          isBlocked: shouldBlock,
+          lastLoginAttempt: new Date()
+        }
+      });
+
+      if (shouldBlock) {
+        throw new Error('Akun diblokir karena terlalu banyak percobaan gagal');
+      }
+      
+      throw new Error(`Username atau password salah. Sisa percobaan: ${3 - attempts}`);
+    }
+
+    // Check if account is verified
+    if (!user.isVerified) {
+      throw new Error('Akun belum diverifikasi. Silakan cek email Anda');
+    }
+
+    // Get user profile based on role
+    let profile = null;
+    if (user.role === 'mahasiswa') {
+      profile = await prisma.mahasiswa.findUnique({
+        where: { nim: username },
+        select: {
+          nim: true,
+          nama: true,
+          email: true,
+          foto: true,
+          phone: true,
+          prodi: true,
+          alamat: true,
+          kota: true,
+          provinsi: true,
+          angkatan: true,
+          kelas: true
+        }
+      });
+    } else if (user.role === 'dosen') {
+      profile = await prisma.dosen.findUnique({
+        where: { kode_dosen: username },
+        select: {
+          kode_dosen: true,
+          nama: true,
+          email: true,
+          foto: true,
+          phone: true,
+          jurusan: true,
+          alamat: true
+        }
+      });
+    }
+
+    if (!profile) {
+      throw new Error('Data profil tidak ditemukan');
+    }
+
+    // Reset login attempts on successful login
+    await prisma.user.update({
+      where: { username },
       data: {
-        userId: user.id_user,
-        refreshToken,
-        ipAddress: '', // Optional: req.ip
-        userAgent: '', // Optional: req.headers['user-agent']
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-      },
+        loginAttempts: 0,
+        isBlocked: false,
+        lastLoginAttempt: new Date(),
+        lastLoginSuccess: new Date()
+      }
     });
+
+    // Create session
+    const session = await prisma.session.create({
+      data: {
+        userId: username,
+        loginTime: new Date(),
+        userAgent: req.headers['user-agent'] || '',
+        ipAddress: req.ip
+      }
+    });
+
+    // Generate tokens
+    const accessToken = jwt.sign(
+      { username, role: user.role, sessionId: session.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    const refreshToken = jwt.sign(
+      { username, sessionId: session.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
 
     return {
-      message: 'User registered successfully',
       user: {
-        id: user.id_user,
-        name: user.name,
-        username: user.username,
-        email: user.email,
+        username,
         role: user.role,
+        ...profile,
       },
       accessToken,
-      refreshToken,
+      refreshToken
     };
-  } catch (err) {
-  console.error('[REGISTER ERROR]', err);
-  if (err.code === 'P2002') {
-    throw new Error('Email already registered');
+
+  } catch (error) {
+    throw error;
   }
-  throw new Error('Failed to register user');
 }
 
-}
-
-// LOGIN
-export async function login({ username, password }) {
-  const user = await prisma.user.findFirst({
-    where: { username },
-  });
-
+// RESET PASSWORD (generate token & save to user)
+export async function resetPassword({ email }) {
+  // Cari user di Mahasiswa/Dosen
+  let user = await prisma.mahasiswa.findUnique({ where: { email } });
+  let username = user?.nim;
   if (!user) {
-    throw new Error('Invalid username or password');
+    user = await prisma.dosen.findUnique({ where: { email } });
+    username = user?.kode_dosen;
   }
+  if (!user) throw new Error('Email not found');
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) {
-    throw new Error('Invalid username or password');
-  }
+  // Generate 6 digit numeric reset token
+  const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+  const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 jam
 
-  const payload = {
-    id: user.id_user,
-    email: user.email,
-    role: user.role,
-  };
-
-  const accessToken = generateAccessToken(payload);
-  const refreshToken = generateRefreshToken(payload);
-
-  await prisma.session.create({
+  await prisma.user.update({
+    where: { username },
     data: {
-      userId: user.id_user,
-      refreshToken,
-      ipAddress: '',
-      userAgent: '',
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      resetToken,
+      resetTokenExpiry,
     },
   });
 
+  // Kirim resetToken ke email user (implementasi email belum ada)
   return {
-    message: 'Login successful',
-    user: {
-      id: user.id_user,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-    },
-    accessToken,
-    refreshToken,
+    message: 'Reset password token generated. Please check your email.',
+    resetToken,
   };
+}
+
+// Generate 6 digit verification token untuk user yang belum diverifikasi (opsional, bisa dipanggil manual)
+export async function generateVerificationToken(username) {
+  const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+  await prisma.user.update({
+    where: { username },
+    data: { verificationToken }
+  });
+  return verificationToken;
 }

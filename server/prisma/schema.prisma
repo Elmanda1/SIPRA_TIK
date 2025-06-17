@@ -8,25 +8,59 @@ datasource db {
 }
 
 model User {
-  id_user            Int       @id @default(autoincrement())
-  name               String    @db.VarChar(100)
-  username           String    @db.VarChar(50)
-  email              String    @unique @db.VarChar(255)
-  password           String    @db.VarChar(100)
-  role               Role      @default(mahasiswa)
-  isVerified         Boolean   @default(false)
-  verificationToken  String?   @db.VarChar(255)
-  resetToken         String?   @db.VarChar(255)
-  resetTokenExpiry   DateTime?
-  createdAt          DateTime  @default(now())
+  username          String    @id @db.VarChar(50) // NIM mahasiswa atau kode dosen
+  password          String    @db.VarChar(100)
+  role              Role      @default(mahasiswa)
+  isVerified        Boolean   @default(false)
+  verificationToken String?   @db.VarChar(255)
+  resetToken        String?   @db.VarChar(255)
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime  @default(now())
 
   // Auth Relations
-  sessions           Session[]
+  sessions          Session[]
 
-  // App Relations (Optional)
-  barang             inven_barang[]  @relation("UserBarang")
-  ruangan            inven_ruangan[] @relation("UserRuangan")
-  pinjam             peminjaman[]    @relation("UserPinjam")
+  // Profile Relations (One-to-One)
+  mahasiswa         Mahasiswa? @relation("UserMahasiswa")
+  dosen             Dosen?     @relation("UserDosen")
+
+  // App Relations
+  barang            inven_barang[]  @relation("UserBarang")
+  ruangan           inven_ruangan[] @relation("UserRuangan")
+  pinjam            peminjaman[]    @relation("UserPinjam")
+}
+
+model Mahasiswa {
+  nim       String  @id @db.VarChar(20) // Primary key
+  nama      String  @db.VarChar(200)
+  email     String  @unique @db.VarChar(255)
+  foto      String? @db.VarChar(500) // Google Drive URL/ID
+  phone     String? @db.VarChar(20)
+  prodi     String  @db.VarChar(100)
+  alamat    String? @db.VarChar(255)
+  kota      String? @db.VarChar(100)
+  provinsi  String? @db.VarChar(100)
+  angkatan  Int
+  kelas     String? @db.VarChar(50)
+  createdAt DateTime @default(now())
+
+  // Relation to User (username menggunakan nim ini)
+  user      User    @relation("UserMahasiswa", fields: [nim], references: [username])
+}
+
+model Dosen {
+  kode_dosen String  @id @db.VarChar(20) // Primary key
+  nama       String  @db.VarChar(200)
+  email      String  @unique @db.VarChar(255)
+  foto       String? @db.VarChar(500) // Google Drive URL/ID
+  phone      String? @db.VarChar(20)
+  fakultas   String  @db.VarChar(100)
+  prodi      String  @db.VarChar(100)
+  jabatan    String? @db.VarChar(100)
+  createdAt  DateTime @default(now())
+
+  // Relation to User (username menggunakan kode_dosen ini)
+  user       User    @relation("UserDosen", fields: [kode_dosen], references: [username])
 }
 
 model inven_barang {
@@ -34,30 +68,43 @@ model inven_barang {
   nama_barang String       @db.VarChar(255)
   jml_barang  Int
   lokasi      String?      @db.VarChar(100)
-  status      statusInven
-  id_user     Int?
-  user        User?       @relation("UserBarang", fields: [id_user], references: [id_user])
+  kondisi     String?      @db.VarChar(100) // baik, rusak ringan, rusak berat
+  foto        String?      @db.VarChar(500) // Google Drive URL/ID
+  status      statusInven  @default(tersedia)
+  keterangan  String?      @db.Text
+  username    String?      @db.VarChar(50) // PIC barang
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user        User?        @relation("UserBarang", fields: [username], references: [username])
   pinjam      peminjaman[] @relation("BarangPinjam")
 }
 
 model Session {
   id            Int      @id @default(autoincrement())
-  userId        Int
+  username      String   @db.VarChar(50)
   refreshToken  String   @db.VarChar(500)
   userAgent     String?  @db.VarChar(255)
   ipAddress     String?  @db.VarChar(100)
   createdAt     DateTime @default(now())
   expiresAt     DateTime
 
-  user          User     @relation(fields: [userId], references: [id_user])
+  user          User     @relation(fields: [username], references: [username])
 }
 
 model inven_ruangan {
-  id_ruangan   Int          @id @default(autoincrement())
-  kode_ruangan String       @db.VarChar(255)
-  status       statusInven
-  id_user      Int?
-  user         User?       @relation("UserRuangan", fields: [id_user], references: [id_user])
+  kode_ruangan String       @id @db.VarChar(50) // Primary key
+  nama_ruangan String       @db.VarChar(255)
+  kapasitas    Int?
+  fasilitas    String?      @db.Text // AC, Proyektor, Whiteboard, dll
+  foto         String?      @db.VarChar(500) // Google Drive URL/ID
+  status       statusInven  @default(tersedia)
+  keterangan   String?      @db.Text
+  username     String?      @db.VarChar(50) // PIC ruangan
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  user         User?        @relation("UserRuangan", fields: [username], references: [username])
   pinjam       peminjaman[] @relation("RuanganPinjam")
 }
 
@@ -66,13 +113,19 @@ model peminjaman {
   tanggal_pengajuan    DateTime         @default(now())
   tanggal_peminjaman   DateTime
   tanggal_pengembalian DateTime
-  status               statusPeminjaman
-  id_user              Int
+  keperluan            String           @db.Text
+  status               statusPeminjaman @default(pending)
+  catatan_admin        String?          @db.Text
+  catatan_pengembalian String?          @db.Text
+  username             String           @db.VarChar(50) // Peminjam
   id_barang            Int?
-  id_ruangan           Int?
+  kode_ruangan         String?          @db.VarChar(50)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
   barang               inven_barang?    @relation("BarangPinjam", fields: [id_barang], references: [id_barang])
-  ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [id_ruangan], references: [id_ruangan])
-  user                 User            @relation("UserPinjam", fields: [id_user], references: [id_user])
+  ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [kode_ruangan], references: [kode_ruangan])
+  user                 User             @relation("UserPinjam", fields: [username], references: [username])
 }
 
 enum Role {
@@ -81,18 +134,16 @@ enum Role {
   mahasiswa
 }
 
-enum statusUser {
-  active
-  inactive
-}
-
 enum statusInven {
   tersedia
   dipinjam
+  maintenance
 }
 
 enum statusPeminjaman {
   pending
   diterima
   ditolak
+  selesai
+  terlambat
 }
