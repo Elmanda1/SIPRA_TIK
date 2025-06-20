@@ -1,8 +1,10 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
+import { sendEmail } from '../utils/email.js';
 
-export async function login({ username, password }) {
+export async function login({ username, password, req }) {
   try {
     // Basic validation
     if (!username || !password) {
@@ -129,25 +131,30 @@ export async function login({ username, password }) {
     // Create session
     const session = await prisma.session.create({
       data: {
-        userId: username,
-        loginTime: new Date(),
+        username: username,
         userAgent: req.headers['user-agent'] || '',
-        ipAddress: req.ip
+        ipAddress: req.ip,
+        refreshToken: '', // sementara, akan diupdate setelah token dibuat
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       }
     });
 
     // Generate tokens
-    const accessToken = jwt.sign(
-      { username, role: user.role, sessionId: session.id },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+    const accessToken = generateAccessToken(
+      { username, role: user.role, sessionId: session.id }
+    );
+    const refreshToken = generateRefreshToken(
+      { username, sessionId: session.id }
     );
 
-    const refreshToken = jwt.sign(
-      { username, sessionId: session.id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
+    // Tambahkan refreshToken dan expiresAt ke session
+    await prisma.session.update({
+      where: { id: session.id },
+      data: {
+        refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      }
+    });
 
     return {
       user: {
@@ -187,7 +194,9 @@ export async function resetPassword({ email }) {
     },
   });
 
-  // Kirim resetToken ke email user (implementasi email belum ada)
+  // Kirim resetToken ke email user
+  await sendEmail(user.email, 'Reset Password SIPRA', `<p>Kode reset password Anda: <b>${resetToken}</b></p>`);
+
   return {
     message: 'Reset password token generated. Please check your email.',
     resetToken,

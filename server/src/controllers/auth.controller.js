@@ -1,6 +1,7 @@
 import prisma from '../config/prisma.js';
 import * as AuthService from '../services/auth.service.js';
 import { loginSchema, resetPasswordSchema } from '../Validators/auth.schema.js';
+import { verifyRefreshToken, generateAccessToken } from '../utils/jwt.js';
 
 export async function login(req, res) {
   try {
@@ -58,6 +59,10 @@ export async function resetPassword(req, res) {
     const result = await AuthService.resetPassword(data);
     res.json(result);
   } catch (err) {
+    if (err.errors) {
+      // Zod error
+      return res.status(400).json({ error: err.errors.map(e => e.message).join(', ') });
+    }
     res.status(400).json({ error: err.message });
   }
 }
@@ -80,5 +85,43 @@ export async function verifyEmail(req, res) {
     res.json({ message: 'Email verified successfully' });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+}
+
+// Refresh token controller
+export async function refreshToken(req, res) {
+  try {
+    const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
+    if (!refreshToken) return res.status(401).json({ message: 'No refresh token provided' });
+
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded) return res.status(403).json({ message: 'Invalid or expired refresh token' });
+
+    // Optionally: check session in DB for validity
+    const session = await prisma.session.findUnique({ where: { id: decoded.sessionId } });
+    if (!session || session.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: 'Session not found or token mismatch' });
+    }
+
+    // Generate new access token
+    const user = await prisma.user.findUnique({ where: { username: decoded.username } });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const accessToken = generateAccessToken({
+      username: user.username,
+      role: user.role,
+      sessionId: session.id,
+    });
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+
+    res.json({ accessToken });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 }

@@ -122,10 +122,35 @@ model peminjaman {
   kode_ruangan         String?          @db.VarChar(50)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
+  penalty              Int?             @default(0)
 
   barang               inven_barang?    @relation("BarangPinjam", fields: [id_barang], references: [id_barang])
   ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [kode_ruangan], references: [kode_ruangan])
   user                 User             @relation("UserPinjam", fields: [username], references: [username])
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.VarChar(50)
+  action    String
+  timestamp DateTime @default(now())
+  details   String?
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.VarChar(50)
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique @db.VarChar(50)
+  theme     String?  @default("light")
+  twoFA     Boolean? @default(false)
+  // Tambahkan field lain sesuai kebutuhan
 }
 
 enum Role {
