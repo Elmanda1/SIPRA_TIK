@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User, Lock, AlertCircle } from 'lucide-react';
-import LoadingSpinner from '../common/LoadingSpinner';
+import { User, Lock, AlertCircle, Eye, EyeOff, RefreshCw, X, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logoImg from '../../assets/SIPRATIK.png' ;
-import { RefreshCw, X } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext'; // Update path
 import { useTheme } from '../../context/SettingsContext';
+import { login as loginApi } from '../../api/auth.api';
+import axios from 'axios';
 
 // Alert Modal Component
 const AlertModal = ({ 
@@ -129,12 +128,14 @@ const LoginPage = () => {
   const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
   const [selectedRole, setSelectedRole] = useState('');
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [roles, setRoles] = useState([]);
 
   useEffect(() => {
-    if (authError) {
+    if (error) {
       setShowAlert(true);
     }
-  }, [authError]);
+  }, [error]);
 
   useEffect(() => {
     if (isBlocked && blockTimeRemaining > 0) {
@@ -152,49 +153,75 @@ const LoginPage = () => {
     }
   }, [isBlocked, blockTimeRemaining]);
 
+  useEffect(() => {
+    // Ambil daftar role dari backend
+    axios.get(`${import.meta.env.VITE_API_URL}/auth/roles`)
+      .then(res => setRoles(res.data.roles))
+      .catch(() => setRoles(['admin', 'mahasiswa'])); // fallback jika gagal
+  }, []);
+
   const maxLoginAttempts = parseInt(settings?.security?.loginAttempts);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (isBlocked) return;
 
-    // Validasi role harus dipilih
     if (!selectedRole) {
       setError('Silakan pilih role terlebih dahulu.');
       setShowAlert(true);
       return;
     }
 
+    setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include',
-      });
+      const data = await loginApi(username, password);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Login gagal');
+      const user = data.data?.user;
+      if (!user) {
+        setError(data.message || 'Login gagal. Username atau password salah.');
         setShowAlert(true);
-        setLoginAttempts((prev) => prev + 1);
-        setPassword(''); // Bersihkan password saat gagal
-        if (loginAttempts + 1 >= 3) setIsBlocked(true);
+        setLoading(false);
+        return;
+      }
+
+      if (user.role.toLowerCase() !== selectedRole.toLowerCase()) {
+        setError('Role tidak sesuai dengan akun.');
+        setShowAlert(true);
+        setLoading(false);
+        return;
+      }
+
+      setLoginAttempts(0);
+      setIsBlocked(false);
+      setBlockTimeRemaining(0);
+      setError(null);
+
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (
+        user.role === 'mahasiswa' ||
+        user.role === 'user' ||
+        user.role === 'dosen'
+      ) {
+        navigate('/user/dashboard');
       } else {
-        login(data.user);
-        // Redirect sesuai role dari backend
-        if (data.user.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else if (data.user.role === 'mahasiswa') {
-          navigate('/user/dashboard');
-        } else {
-          navigate('/');
-        }
+        setError('Role tidak dikenali');
+        setShowAlert(true);
       }
     } catch (err) {
-      setError('Network error');
+      setLoginAttempts((prev) => {
+        const next = prev + 1;
+        if (next >= maxLoginAttempts) {
+          setIsBlocked(true);
+          setBlockTimeRemaining(60);
+        }
+        return next;
+      });
+      // Tampilkan pesan error dari backend jika ada
+      setError(err.response?.data?.message || err.message || 'Terjadi kesalahan saat login');
       setShowAlert(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -262,8 +289,11 @@ const LoginPage = () => {
                 disabled={isBlocked}
               >
                 <option value="">Pilih Role</option>
-                <option value="admin">Admin</option>
-                <option value="mahasiswa">Mahasiswa</option>
+                {roles.map((role) => (
+                  <option key={role} value={role}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -344,7 +374,7 @@ const LoginPage = () => {
                   : ' bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
               }`}
             >
-              {loading ? <LoadingSpinner /> : isBlocked ? 'Akun Terblokir' : 'Login'}
+              {isBlocked ? 'Akun Terblokir' : 'Login'}
             </button>
 
             <div className="text-center mt-4">
@@ -359,15 +389,6 @@ const LoginPage = () => {
           </form> 
         </div>
       </div>
-
-      <AlertModal
-        isOpen={showAlert}
-        onClose={handleCloseAlert}
-        message="Username atau password salah. Silakan coba lagi."
-        attemptCount={loginAttempts}
-        maxAttempts={maxLoginAttempts}
-        onResetPassword={handleResetPassword}
-      />
     </div>
   );
 };

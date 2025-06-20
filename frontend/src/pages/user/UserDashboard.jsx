@@ -21,7 +21,7 @@ export default function UserDashboard() {
   const [selectedCategory, setSelectedCategory] = useState(null); // Tambahkan state untuk kategori yang dipilih
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const { updatePeminjamanStatus } = usePeminjaman();
+  const { updatePeminjamanStatus } = usePeminjaman() || {};
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const blueContainerRef = useRef(null);
   const { user } = useAuth();

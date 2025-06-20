@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState } from 'react';
 
 // Definisikan konstanta denda
 const DENDA_PER_JAM = 5000;
-const PeminjamanContext = createContext();
+const PeminjamanContext = React.createContext();
 
-export const PeminjamanProvider = ({ children }) => {
+export function PeminjamanProvider({ children }) {
   const [peminjamanHistory, setPeminjamanHistory] = useState([
     {
       id: 14,
@@ -330,6 +330,8 @@ export const PeminjamanProvider = ({ children }) => {
       {children}
     </PeminjamanContext.Provider>
   );
-};
+}
 
-export const usePeminjaman = () => useContext(PeminjamanContext);
+export function usePeminjaman() {
+  return React.useContext(PeminjamanContext);
+}

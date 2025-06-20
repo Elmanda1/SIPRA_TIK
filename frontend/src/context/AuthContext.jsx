@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
     },
     { 
       username: 'RafifArka',
-      password: 'user1',
+      password: 'bernard',
       foto: '/src/assets/profile.jpg',
       role: 'user',
       email: 'Muhammad.Rafif.Dwiarka.tik24@stu.pnj.ac.id',
