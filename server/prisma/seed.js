@@ -32,7 +32,7 @@ const userData = [
   // Admin user
   {
     username: 'bernardganteng',
-    password: '$2b$12$$2b$12$LMNQ78hhdfxCyhxXpYo5TO8fwV5GVHbMox7vEifTkRG7D3fLjmdL2', // hash dari 'admin123'
+    password: '$2b$12$$2b$12$$2b$12$eWcJkJYDBsbdb9M7zJ0vYekqk5x1/UNaMNJyd8KvC7X3FYZPgbktW', // hash dari 'admin123'
     role: 'admin',
     isVerified: true,
   },
