@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 // Mock profile image
 const profileImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23e5e7eb'/%3E%3Ccircle cx='40' cy='30' r='12' fill='%23374151'/%3E%3Cpath d='M20 65c0-11 9-20 20-20s20 9 20 20' fill='%23374151'/%3E%3C/svg%3E";
 
 const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
-  const { user, updatePassword, credentials } = useAuth();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
-  const [email, setEmail] = useState(isFromProfile && user ? user.email : '');
+  const [username, setUsername] = useState(isFromProfile && user ? user.username : '');
   const [verificationCode, setVerificationCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,8 +19,7 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [selectedRole, setSelectedRole] = useState(isFromProfile && user ? user.role : '');
-
-  const validCode = '123456';
+  const [resetToken, setResetToken] = useState('');
 
   useEffect(() => {
     if (countdown > 0) {
@@ -31,7 +31,7 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
   useEffect(() => {
     if (!isOpen) {
       setStep(1);
-      setEmail(isFromProfile && user ? user.email : '');
+      setUsername(isFromProfile && user ? user.username : '');
       setSelectedRole(isFromProfile && user ? user.role : '');
       setVerificationCode('');
       setNewPassword('');
@@ -46,29 +46,17 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
   const handleSendCode = async () => {
     setError('');
     setIsLoading(true);
-
     try {
-      // If from profile, skip role validation since we already know the user
-      if (!isFromProfile && !selectedRole) {
-        throw new Error('Silakan pilih role terlebih dahulu');
-      }
-
-      // Simulasi pengecekan email dengan delay lebih singkat
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const userExists = credentials.find(
-        cred => cred.email === email && (isFromProfile || cred.role === selectedRole)
-      );
-
-      if (userExists) {
-        setStep(2);
-        setCountdown(60);
-        setError('');
-      } else {
-        throw new Error(isFromProfile ? 'Terjadi kesalahan' : 'Email tidak ditemukan untuk role yang dipilih');
-      }
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+        username,
+        role: selectedRole === 'mahasiswa' ? 'user' : selectedRole
+      });
+      if (res.data.resetToken) setResetToken(res.data.resetToken);
+      setStep(2);
+      setCountdown(60);
+      setError('');
     } catch (error) {
-      setError(error.message);
+      setError(error.response?.data?.message || error.message);
     } finally {
       setIsLoading(false);
     }
@@ -77,9 +65,8 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
   const handleVerifyCode = async () => {
     setError('');
     setIsLoading(true);
-
     setTimeout(() => {
-      if (verificationCode === validCode) {
+      if (verificationCode === resetToken) {
         setStep(3);
         setError('');
       } else {
@@ -91,30 +78,26 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
 
   const handleResetPassword = async () => {
     setError('');
-
     if (newPassword.length < 6) {
       setError('Password minimal 6 karakter');
       return;
     }
-
     if (newPassword !== confirmPassword) {
       setError('Konfirmasi password tidak cocok');
       return;
     }
-
     setIsLoading(true);
-
     try {
-      // Karena dari profile, tidak perlu selectedRole
-      updatePassword(email, newPassword);
-      
-      setTimeout(() => {
-        setStep(4);
-        setIsLoading(false);
-      }, 1500);
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password/confirm`, {
+        username,
+        role: selectedRole === 'mahasiswa' ? 'user' : selectedRole,
+        resetToken,
+        newPassword,
+      });
+      setStep(4);
     } catch (error) {
-      console.error('Error updating password:', error);
-      setError('Gagal mengupdate password');
+      setError(error.response?.data?.message || error.message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -145,7 +128,7 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
     </div>
   );
 
-  const renderEmailStep = () => (
+  const renderUsernameStep = () => (
     <div className="space-y-4">
       <div className="text-center">
         <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
@@ -154,8 +137,8 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
         <h3 className="text-xl font-bold text-gray-900 mb-2">Reset Password</h3>
         <p className="text-sm text-gray-600">
           {isFromProfile 
-            ? 'Masukkan email untuk menerima kode verifikasi'
-            : 'Masukkan email dan pilih role untuk menerima kode verifikasi'
+            ? 'Masukkan username untuk menerima kode verifikasi'
+            : 'Masukkan username dan pilih role untuk menerima kode verifikasi'
           }
         </p>
       </div>
@@ -180,21 +163,18 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email Address
+          Username
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Mail className="h-4 w-4 text-gray-400" />
           </div>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isFromProfile}
-            className={`block w-full pl-10 pr-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              isFromProfile ? 'bg-gray-50 cursor-not-allowed' : ''
-            }`}
-            placeholder="Masukkan email Anda"
+            type="text"
+            value={username} // <-- tambahkan ini!
+            onChange={(e) => setUsername(e.target.value)}
+            className={`block w-full pl-10 pr-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            placeholder="Masukkan username Anda"
             required
           />
         </div>
@@ -209,7 +189,7 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
 
       <button
         onClick={handleSendCode}
-        disabled={!email || (!isFromProfile && !selectedRole) || isLoading}
+        disabled={!username || (!isFromProfile && !selectedRole) || isLoading}
         className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
       >
         {isLoading ? 'Mengirim...' : 'Kirim Kode Verifikasi'}
@@ -226,9 +206,8 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
         <h3 className="text-xl font-bold text-gray-900 mb-2">Verifikasi Kode</h3>
         <p className="text-sm text-gray-600">
           Kode verifikasi telah dikirim ke <br />
-          <span className="font-medium">{email}</span>
+          <span className="font-medium">{username}</span>
         </p>
-        <p className="text-xs text-blue-600 mt-2">Demo: gunakan kode "123456"</p>
       </div>
 
       <div>
@@ -413,7 +392,7 @@ const ForgotPasswordPopup = ({ isOpen, onClose, isFromProfile = false }) => {
 
         <div className="p-6">
           {step < 4 && renderStepIndicator()}
-          {step === 1 && renderEmailStep()}
+          {step === 1 && renderUsernameStep()}
           {step === 2 && renderCodeStep()}
           {step === 3 && renderPasswordStep()}
           {step === 4 && renderSuccessStep()}

@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext'; // Update path
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle, User } from 'lucide-react';
+import axios from 'axios';
 
 const ResetPasswordPage = () => {
-  const { credentials, updatePassword } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1: Email, 2: Code, 3: New Password, 4: Success
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,51 +16,52 @@ const ResetPasswordPage = () => {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [selectedRole, setSelectedRole] = useState('');
+  const [roles, setRoles] = useState([]);
+  const [validCode, setValidCode] = useState(''); // Tambahkan state baru
 
-  // Demo data
-  const validEmail = 'Muhammad.Rafif.Dwarka.tik24@stu.pnj.ac.id';
-  const validCode = '123456';
+  // Ambil daftar role dari backend
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/auth/roles`)
+      .then(res => setRoles(res.data.roles))
+      .catch(() => setRoles(['admin', 'mahasiswa']));
+  }, []);
 
   // Timer for resend code
-  React.useEffect(() => {
+  useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [countdown]);
 
+  // Kirim kode verifikasi ke backend
   const handleSendCode = async () => {
     setError('');
     setIsLoading(true);
-
     try {
-      // Validate email and role against credentials
-      const userExists = credentials.find(
-        cred => cred.email.toLowerCase() === email.toLowerCase() && 
-               (cred.role === selectedRole || 
-                (selectedRole === 'mahasiswa' && cred.role === 'user'))
-      );
+      if (!selectedRole) throw new Error('Silakan pilih role terlebih dahulu');
+      if (!username) throw new Error('Username harus diisi');
 
-      if (!selectedRole) {
-        throw new Error('Silakan pilih role terlebih dahulu');
-      }
+      // Kirim request ke backend
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+        username,
+        role: selectedRole === 'mahasiswa' ? 'user' : selectedRole
+      });
 
-      if (!userExists) {
-        throw new Error('Email tidak ditemukan untuk role yang dipilih');
-      }
+      // Simpan kode verifikasi dari backend (untuk dev/testing)
+      if (res.data.resetToken) setValidCode(res.data.resetToken);
 
-      // If validation passes, proceed to next step
       setStep(2);
       setCountdown(60);
       setError('');
-
     } catch (error) {
-      setError(error.message);
+      setError(error.response?.data?.message || error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Verifikasi kode yang dimasukkan
   const handleVerifyCode = async () => {
     setError('');
     setIsLoading(true);
@@ -93,30 +93,17 @@ const ResetPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      // Convert mahasiswa role to user for system consistency
-      const systemRole = selectedRole === 'mahasiswa' ? 'user' : selectedRole;
-      
-      // Find the user in credentials to verify before updating
-      const userToUpdate = credentials.find(
-        cred => cred.email.toLowerCase() === email.toLowerCase() && 
-                (cred.role === systemRole)
-      );
+      // Kirim request ke backend
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password/confirm`, {
+        username,
+        role: selectedRole === 'mahasiswa' ? 'user' : selectedRole,
+        resetToken: validCode,
+        newPassword,
+      });
 
-      if (!userToUpdate) {
-        throw new Error('User tidak ditemukan');
-      }
-
-      // Call updatePassword from AuthContext
-      updatePassword(email, newPassword, systemRole);
-      
-      // Wait a bit to simulate processing
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Move to success step
-      setStep(4);
+      setStep(4); // Success
     } catch (error) {
-      console.error('Error updating password:', error);
-      setError('Gagal mengupdate password: ' + error.message);
+      setError(error.response?.data?.message || error.message);
     } finally {
       setIsLoading(false);
     }
@@ -152,7 +139,7 @@ const ResetPasswordPage = () => {
     </div>
   );
 
-  const renderEmailStep = () => (
+  const renderUsernameStep = () => (
     <div className="space-y-6">
       <div className="text-center">
         <div className="mx-auto w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
@@ -160,7 +147,7 @@ const ResetPasswordPage = () => {
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Reset Password</h2>
         <p className="text-gray-600">
-          Masukkan email dan pilih role Anda untuk menerima kode verifikasi
+          Masukkan username dan pilih role Anda untuk menerima kode verifikasi
         </p>
       </div>
 
@@ -176,24 +163,25 @@ const ResetPasswordPage = () => {
           required
         >
           <option value="">Pilih Role</option>
-          <option value="admin">Admin</option>
-          <option value="mahasiswa">Mahasiswa</option>
+          {roles.map((role) => (
+            <option key={role} value={role}>{role.charAt(0).toUpperCase() + role.slice(1)}</option>
+          ))}
         </select>
       </div>
 
       <div>
         <label className="block text-base font-medium text-gray-700 mb-2">
-          Email Address
+          Username
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Mail className="h-6 w-6 text-gray-400" />
+            <User className="h-6 w-6 text-gray-400" />
           </div>
           <input
-            type="email"
-            value={email}
+            type="text"
+            value={username}
             onChange={(e) => {
-              setEmail(e.target.value);
+              setUsername(e.target.value);
               setError(''); // Clear error when user types
             }}
             className={`block w-full pl-12 pr-4 py-3 text-lg bg-white border 
@@ -201,7 +189,7 @@ const ResetPasswordPage = () => {
               rounded-xl text-black focus:outline-none focus:ring-2 
               ${error ? 'focus:ring-red-500' : 'focus:ring-blue-500'} 
               focus:border-transparent`}
-            placeholder="Masukkan email Anda"
+            placeholder="Masukkan username Anda"
             required
           />
         </div>
@@ -212,7 +200,7 @@ const ResetPasswordPage = () => {
 
       <button
         onClick={handleSendCode}
-        disabled={!email || !selectedRole || isLoading}
+        disabled={!username || !selectedRole || isLoading}
         className="w-full py-4 px-4 bg-blue-600 text-white rounded-xl 
           font-medium text-lg hover:bg-blue-700 focus:outline-none 
           focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
@@ -232,7 +220,7 @@ const ResetPasswordPage = () => {
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifikasi Kode</h2>
         <p className="text-gray-600">
           Kami telah mengirim kode verifikasi ke <br />
-          <span className="font-medium">{email}</span>
+          <span className="font-medium">{username}</span>
         </p>
       </div>
 
@@ -439,7 +427,7 @@ const ResetPasswordPage = () => {
             </button>
           </div>
           {step < 4 && renderStepIndicator()}
-          {step === 1 && renderEmailStep()}
+          {step === 1 && renderUsernameStep()}
           {step === 2 && renderCodeStep()}
           {step === 3 && renderPasswordStep()}
           {step === 4 && renderSuccessStep()}

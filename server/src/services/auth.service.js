@@ -19,9 +19,6 @@ export async function login({ username, password, req }) {
         password: true,
         role: true,
         isVerified: true,
-        isBlocked: true,
-        lastLoginAttempt: true,
-        loginAttempts: true
       }
     });
 
@@ -29,49 +26,11 @@ export async function login({ username, password, req }) {
       throw new Error('Username atau password salah');
     }
 
-    // Check if account is blocked
-    if (user.isBlocked) {
-      // Check if block duration (1 hour) has passed
-      const blockDuration = 60 * 60 * 1000; // 1 hour in milliseconds
-      const now = new Date();
-      const lastAttempt = user.lastLoginAttempt;
-
-      if (lastAttempt && (now - new Date(lastAttempt)) < blockDuration) {
-        throw new Error('Akun diblokir. Silakan coba lagi dalam 1 jam');
-      } else {
-        // Reset block if duration has passed
-        await prisma.user.update({
-          where: { username },
-          data: {
-            isBlocked: false,
-            loginAttempts: 0
-          }
-        });
-      }
-    }
-
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
-    
+
     if (!isValidPassword) {
-      // Increment login attempts
-      const attempts = (user.loginAttempts || 0) + 1;
-      const shouldBlock = attempts >= 3;
-
-      await prisma.user.update({
-        where: { username },
-        data: {
-          loginAttempts: attempts,
-          isBlocked: shouldBlock,
-          lastLoginAttempt: new Date()
-        }
-      });
-
-      if (shouldBlock) {
-        throw new Error('Akun diblokir karena terlalu banyak percobaan gagal');
-      }
-      
-      throw new Error(`Username atau password salah. Sisa percobaan: ${3 - attempts}`);
+      throw new Error('Username atau password salah');
     }
 
     // Check if account is verified
@@ -117,17 +76,6 @@ export async function login({ username, password, req }) {
       throw new Error('Data profil tidak ditemukan');
     }
 
-    // Reset login attempts on successful login
-    await prisma.user.update({
-      where: { username },
-      data: {
-        loginAttempts: 0,
-        isBlocked: false,
-        lastLoginAttempt: new Date(),
-        lastLoginSuccess: new Date()
-      }
-    });
-
     // Create session
     const session = await prisma.session.create({
       data: {
@@ -172,35 +120,41 @@ export async function login({ username, password, req }) {
 }
 
 // RESET PASSWORD (generate token & save to user)
-export async function resetPassword({ email }) {
-  // Cari user di Mahasiswa/Dosen
-  let user = await prisma.mahasiswa.findUnique({ where: { email } });
-  let username = user?.nim;
-  if (!user) {
-    user = await prisma.dosen.findUnique({ where: { email } });
-    username = user?.kode_dosen;
+export async function resetPassword({ username, role }) {
+  let user = null;
+  let email = null;
+
+  if (role === 'user' || role === 'mahasiswa') {
+    // 1. Cari mahasiswa berdasarkan NIM
+    const mahasiswa = await prisma.mahasiswa.findUnique({ where: { nim: username } });
+    email = mahasiswa?.email;
+
+    // 2. Cari user di tabel user (username = nim)
+    user = await prisma.user.findUnique({ where: { username } });
+
+    if (!mahasiswa || !user || !email) {
+      throw new Error('User tidak ditemukan atau email belum terdaftar');
+    }
+
+    // 3. Generate kode reset (6 digit)
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 jam
+
+    // 4. Simpan token ke tabel user
+    await prisma.user.update({
+      where: { username },
+      data: { resetToken, resetTokenExpiry }
+    });
+
+    // 5. (Opsional) Kirim email kode reset
+    // await sendEmail(email, 'Reset Password SIPRATIK', `<p>Kode reset password Anda: <b>${resetToken}</b></p>`);
+
+    // 6. Untuk dev/testing, return token di response
+    return { message: 'Kode reset password berhasil digenerate.', resetToken };
   }
-  if (!user) throw new Error('Email not found');
 
-  // Generate 6 digit numeric reset token
-  const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
-  const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 jam
-
-  await prisma.user.update({
-    where: { username },
-    data: {
-      resetToken,
-      resetTokenExpiry,
-    },
-  });
-
-  // Kirim resetToken ke email user
-  await sendEmail(user.email, 'Reset Password SIPRA', `<p>Kode reset password Anda: <b>${resetToken}</b></p>`);
-
-  return {
-    message: 'Reset password token generated. Please check your email.',
-    resetToken,
-  };
+  // ...handle dosen dan admin seperti sebelumnya...
+  // (bisa pakai pola yang sama: cari email di tabel dosen, simpan token di user)
 }
 
 // Generate 6 digit verification token untuk user yang belum diverifikasi (opsional, bisa dipanggil manual)
@@ -211,4 +165,28 @@ export async function generateVerificationToken(username) {
     data: { verificationToken }
   });
   return verificationToken;
+}
+
+export async function confirmResetPassword({ username, role, resetToken, newPassword }) {
+  // Cari user di tabel user
+  const user = await prisma.user.findUnique({ where: { username } });
+  if (!user || user.resetToken !== resetToken) {
+    throw new Error('Token reset tidak valid');
+  }
+  // Cek expiry jika perlu
+  if (user.resetTokenExpiry && user.resetTokenExpiry < new Date()) {
+    throw new Error('Token reset sudah kadaluarsa');
+  }
+  // Hash password baru
+  const hashed = await bcrypt.hash(newPassword, 10);
+  // Update password dan hapus token
+  await prisma.user.update({
+    where: { username },
+    data: {
+      password: hashed,
+      resetToken: null,
+      resetTokenExpiry: null,
+    },
+  });
+  return { message: 'Password berhasil direset' };
 }
