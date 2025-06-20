@@ -22,6 +22,29 @@ const userData = [
   { username: '2407411074', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
   { username: '2407411067', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
   { username: '2407411063', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
+  // Dosen userData
+  { username: '198606072019031011', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'dosen', isVerified: true },
+  { username: '198410282019031005', password: '$2b$12$eB9D4thBoKiDdkeN3ybCMe7bkew.omfw1yTvYxwwWtdtvI3ewYxj2', role: 'dosen', isVerified: true },
+  { username: '198411292020121002', password: '$2b$12$7pvGHw7luZkRnotw313oReJBMdtwN710vLxn2CM6Tyet72NeZypGS', role: 'dosen', isVerified: true },
+  { username: '199110042019032024', password: '$2b$12$JYD8EPMGKN4eHksfwn.TP.ynC1p5nQrT5BCO2cQKKTyO1zE.l0HBe', role: 'dosen', isVerified: true },
+  { username: '199303022019032022', password: '$2b$12$5dyC0GW/prAMwQs67d/7zexeAyplw0cWLoTAbB2zN9sh0.m66Ozgy', role: 'dosen', isVerified: true },
+  { username: '197904282005012002', password: '$2b$12$rvXt9Wo6acrBYpYSdZ7iUeHedCJxpXPp9PQPkf9uvKVkjJTSCFbfO', role: 'dosen', isVerified: true },
+  { username: '197908032003122003', password: '$2b$12$V1QzqvV6yIz13S9oTo7a1.sqB7FXe.HgwbaHLDgV8B54Y2qKn8nhe', role: 'dosen', isVerified: true },
+  { username: '198111162005012004', password: '$2b$12$WAKwoaJy0AHl9FPfOxS0Aud7jhcX2LTzP5Bxkv/hAHy8DyS2lsrRy', role: 'dosen', isVerified: true },
+  { username: '198502272015042001', password: '$2b$12$y9rHehGmKEQ6Y14LuJH5XetyGY6XYna32z.Y/FFn3bqFPzSeaC36C', role: 'dosen', isVerified: true },
+  { username: '198807122018032001', password: '$2b$12$kw/6WhSMvLMrZqCjfIjDHODGqh8fbsrCDsAn6HdMdiDb.oXbSsDtW', role: 'dosen', isVerified: true },
+  // Admin user
+  {
+    username: 'bernard.admin',
+    password: '$2b$12$8yQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6', // hash dari 'admin123'
+    role: 'admin',
+    isVerified: true,
+    nama: 'Bernard Pratama',
+    email: 'bernard.pratama@tik.ac.id',
+    phone: '081234567890',
+    foto: 'https://randomuser.me/api/portraits/men/75.jpg',
+    createdAt: new Date('2025-06-21'),
+  },
 ]
 
 // Daftar NIM sesuai urutan userData
@@ -210,6 +233,119 @@ const mahasiswaData = [
   },
 ]
 
+const dosenData = [
+  {
+    kode_dosen: '198606072019031011',
+    nama: 'Anggi Mardiyono, S.Kom., M.Kom.',
+    email: 'anggi.mardiyono@gmail.com',
+    foto: null,
+    phone: '085227622664',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Asisten Ahli',
+    createdAt: new Date('2051-07-01'),
+  },
+  {
+    kode_dosen: '198410282019031005',
+    nama: 'Asep Taufik Muharram, S.Kom., M.Kom.',
+    email: 'taufikmuharram@gmail.com',
+    foto: null,
+    phone: '081514855584',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Asisten Ahli',
+    createdAt: new Date('2049-11-01'),
+  },
+  {
+    kode_dosen: '198411292020121002',
+    nama: 'Bambang Warsuta, S.Kom., M.T.I.',
+    email: 'bambangwarsuta@gmail.com',
+    foto: null,
+    phone: '081299441447',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Pengajar',
+    createdAt: new Date('2049-12-01'),
+  },
+  {
+    kode_dosen: '199110042019032024',
+    nama: 'Malisa Huzaifa, S.Kom., M.T.',
+    email: 'huzaifa.malisa@gmail.com',
+    foto: null,
+    phone: '085370833573',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Multimedia Digital',
+    jabatan: 'Pengajar',
+    createdAt: new Date('2056-11-01'),
+  },
+  {
+    kode_dosen: '199303022019032022',
+    nama: 'Noorlela Marcheta, S.Kom., M.Kom.',
+    email: 'noorlela.marcheta@gmail.com',
+    foto: null,
+    phone: '087873757293',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Multimedia Digital',
+    jabatan: 'Asisten Ahli',
+    createdAt: new Date('2058-04-01'),
+  },
+  {
+    kode_dosen: '197904282005012002',
+    nama: 'Mera Kartika Delimayanti, S.Si., M.T., Ph.D.',
+    email: 'mera.delimayanti@politeknik.ac.id',
+    foto: null,
+    phone: '081234567890',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Lektor Kepala',
+    createdAt: new Date('2044-05-01'),
+  },
+  {
+    kode_dosen: '197908032003122003',
+    nama: 'Anita Hidayati, S.Kom., M.Kom.',
+    email: 'anita.hidayati@tik.ac.id',
+    foto: null,
+    phone: '081234567891',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Lektor',
+    createdAt: new Date('2044-09-01'),
+  },
+  {
+    kode_dosen: '198111162005012004',
+    nama: 'Dr. Dewi Yanti Liliana, S.Kom., M.Kom.',
+    email: 'dewi.yanti@tik.ac.id',
+    foto: null,
+    phone: '081234567892',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Lektor',
+    createdAt: new Date('2046-12-01'),
+  },
+  {
+    kode_dosen: '198502272015042001',
+    nama: 'Risna Sari, S.Kom., M.T.I.',
+    email: 'risna.sari@tik.ac.id',
+    foto: null,
+    phone: '081234567893',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Asisten Ahli',
+    createdAt: new Date('2050-03-01'),
+  },
+  {
+    kode_dosen: '198807122018032001',
+    nama: 'Iklima Ermis Ismail, M.Kom.',
+    email: 'iklima.ismail@tik.ac.id',
+    foto: null,
+    phone: '081234567894',
+    fakultas: 'Teknik Informatika dan Komputer',
+    prodi: 'D4 Teknik Informatika',
+    jabatan: 'Pengajar',
+    createdAt: new Date('2053-08-01'),
+  },
+]
+
 // Tambahkan nim ke setiap mahasiswa sesuai urutan userData
 const mahasiswaSeed = mahasiswaData.map((mhs, idx) => ({
   nim: nimList[idx],
@@ -220,12 +356,40 @@ async function main() {
   console.log('Starting user seeding...')
   await prisma.user.createMany({ data: userData, skipDuplicates: true })
 
+  // Pastikan admin juga di-insert dengan detail jika field ada di model
+  const adminUser = {
+    username: 'bernard.admin',
+    password: '$2b$12$8yQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6', // hash dari 'admin123'
+    role: 'admin',
+    isVerified: true,
+    nama: 'Bernard Pratama',
+    email: 'bernard.pratama@tik.ac.id',
+    phone: '081234567890',
+    foto: 'https://randomuser.me/api/portraits/men/75.jpg',
+    createdAt: new Date('2025-06-21'),
+  }
+
+  // Cek jika admin belum ada, baru insert (untuk menghindari duplikasi)
+  const adminExists = await prisma.user.findUnique({ where: { username: adminUser.username } })
+  if (!adminExists) {
+    await prisma.user.create({ data: adminUser })
+    console.log('Admin user seeded.')
+  }
+
   console.log('Starting mahasiswa seeding...')
   for (const mhs of mahasiswaSeed) {
     try {
       await prisma.mahasiswa.create({ data: mhs })
     } catch (e) {
       console.error(`Gagal insert mahasiswa NIM ${mhs.nim}:`, e.message)
+    }
+  }
+  console.log('Starting dosen seeding...')
+  for (const dosen of dosenData) {
+    try {
+      await prisma.dosen.create({ data: dosen })
+    } catch (e) {
+      console.error(`Gagal insert dosen Kode ${dosen.kode_dosen}:`, e.message)
     }
   }
 
