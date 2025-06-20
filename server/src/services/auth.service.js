@@ -72,12 +72,10 @@ export async function login({ username, password, req }) {
         }
       });
     } else if (user.role === 'admin') {
-      profile = await prisma.admin.findUnique({
-        where: { username: username },
-        select: {
-          username: true
-        }
-      });
+      // Admin hanya punya data di tabel user, tidak perlu query ke prisma.admin
+      profile = {
+        username: user.username,
+      };
     }
 
     if (!profile) {
