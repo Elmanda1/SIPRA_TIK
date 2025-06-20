@@ -68,8 +68,7 @@ export async function login({ username, password, req }) {
           phone: true,
           fakultas: true,
           prodi: true,
-          jabatan: true,
-          alamat: true
+          jabatan: true
         }
       });
     }
