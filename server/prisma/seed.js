@@ -356,6 +356,26 @@ async function main() {
   console.log('Starting user seeding...')
   await prisma.user.createMany({ data: userData, skipDuplicates: true })
 
+  // Pastikan admin juga di-insert dengan detail jika field ada di model
+  const adminUser = {
+    username: 'bernard.admin',
+    password: '$2b$12$8yQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6', // hash dari 'admin123'
+    role: 'admin',
+    isVerified: true,
+    nama: 'Bernard Pratama',
+    email: 'bernard.pratama@tik.ac.id',
+    phone: '081234567890',
+    foto: 'https://randomuser.me/api/portraits/men/75.jpg',
+    createdAt: new Date('2025-06-21'),
+  }
+
+  // Cek jika admin belum ada, baru insert (untuk menghindari duplikasi)
+  const adminExists = await prisma.user.findUnique({ where: { username: adminUser.username } })
+  if (!adminExists) {
+    await prisma.user.create({ data: adminUser })
+    console.log('Admin user seeded.')
+  }
+
   console.log('Starting mahasiswa seeding...')
   for (const mhs of mahasiswaSeed) {
     try {
@@ -372,7 +392,6 @@ async function main() {
       console.error(`Gagal insert dosen Kode ${dosen.kode_dosen}:`, e.message)
     }
   }
-
 
   console.log('Seeding finished.')
 }
