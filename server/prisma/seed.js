@@ -60,7 +60,7 @@ const mahasiswaData = [
     foto: null,
     phone: '081234567007',
     prodi: 'D4 Teknik Informatika',
-    alamat: 'Jl. Mawar No. 7',
+    alamat: 'Jl. Mawar No. 8',
     kota: 'Depok',
     provinsi: 'Jawa Barat',
     angkatan: 2024,
