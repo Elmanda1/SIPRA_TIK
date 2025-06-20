@@ -71,6 +71,13 @@ export async function login({ username, password, req }) {
           jabatan: true
         }
       });
+    } else if (user.role === 'admin') {
+      profile = await prisma.admin.findUnique({
+        where: { username: username },
+        select: {
+          username: true
+        }
+      });
     }
 
     if (!profile) {
