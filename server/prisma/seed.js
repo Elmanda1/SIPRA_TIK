@@ -31,7 +31,7 @@ const userData = [
   { username: '198807122018032001', password: '$2b$12$kw/6WhSMvLMrZqCjfIjDHODGqh8fbsrCDsAn6HdMdiDb.oXbSsDtW', role: 'dosen', isVerified: true },
   // Admin user
   {
-    username: 'bernard.admin',
+    username: 'bernardganteng',
     password: '$2b$12$$2b$12$LMNQ78hhdfxCyhxXpYo5TO8fwV5GVHbMox7vEifTkRG7D3fLjmdL2', // hash dari 'admin123'
     role: 'admin',
     isVerified: true,
