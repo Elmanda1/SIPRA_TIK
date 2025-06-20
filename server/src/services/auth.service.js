@@ -66,7 +66,9 @@ export async function login({ username, password, req }) {
           email: true,
           foto: true,
           phone: true,
-          jurusan: true,
+          fakultas: true,
+          prodi: true,
+          jabatan: true,
           alamat: true
         }
       });
