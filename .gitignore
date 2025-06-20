@@ -11,6 +11,7 @@ node_modules
 .env
 client/.env
 server/.env
+server/credentials.json
 dist
 dist-ssr
 *.local
