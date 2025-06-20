@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 const userData = [
+  // Mahasiswa userData
   { username: '2407411077', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
   { username: '2407411079', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
   { username: '2407411073', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
@@ -17,11 +18,6 @@ const userData = [
   { username: '2407411066', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
   { username: '2407411071', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
   { username: '2407411081', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
-  { username: '2407411060', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
-  { username: '2407411068', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
-  { username: '2407411074', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
-  { username: '2407411067', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
-  { username: '2407411063', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'mahasiswa', isVerified: true },
   // Dosen userData
   { username: '198606072019031011', password: '$2b$12$F0dsJr3sFhQTFxJUBWU0Yup3ngGhEUb4SWBNbMW8REs.ofG8dd3UK', role: 'dosen', isVerified: true },
   { username: '198410282019031005', password: '$2b$12$eB9D4thBoKiDdkeN3ybCMe7bkew.omfw1yTvYxwwWtdtvI3ewYxj2', role: 'dosen', isVerified: true },
@@ -39,16 +35,11 @@ const userData = [
     password: '$2b$12$8yQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6', // hash dari 'admin123'
     role: 'admin',
     isVerified: true,
-    nama: 'Bernard Pratama',
-    email: 'bernard.pratama@tik.ac.id',
-    phone: '081234567890',
-    foto: 'https://randomuser.me/api/portraits/men/75.jpg',
-    createdAt: new Date('2025-06-21'),
   },
 ]
 
-// Daftar NIM sesuai urutan userData
-const nimList = userData.map(u => u.username)
+// Daftar NIM sesuai urutan userData mahasiswa
+const nimList = userData.filter(u => u.role === 'mahasiswa').map(u => u.username)
 
 const mahasiswaData = [
   {
@@ -233,6 +224,16 @@ const mahasiswaData = [
   },
 ]
 
+// Pastikan jumlah mahasiswaData sama dengan nimList
+if (mahasiswaData.length !== nimList.length) {
+  throw new Error('Jumlah mahasiswaData dan userData mahasiswa tidak sama!')
+}
+
+const mahasiswaSeed = mahasiswaData.map((mhs, idx) => ({
+  nim: nimList[idx],
+  ...mhs,
+}))
+
 const dosenData = [
   {
     kode_dosen: '198606072019031011',
@@ -243,7 +244,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Asisten Ahli',
-    createdAt: new Date('2051-07-01'),
   },
   {
     kode_dosen: '198410282019031005',
@@ -254,7 +254,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Asisten Ahli',
-    createdAt: new Date('2049-11-01'),
   },
   {
     kode_dosen: '198411292020121002',
@@ -265,7 +264,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Pengajar',
-    createdAt: new Date('2049-12-01'),
   },
   {
     kode_dosen: '199110042019032024',
@@ -276,7 +274,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Multimedia Digital',
     jabatan: 'Pengajar',
-    createdAt: new Date('2056-11-01'),
   },
   {
     kode_dosen: '199303022019032022',
@@ -287,7 +284,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Multimedia Digital',
     jabatan: 'Asisten Ahli',
-    createdAt: new Date('2058-04-01'),
   },
   {
     kode_dosen: '197904282005012002',
@@ -298,7 +294,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Lektor Kepala',
-    createdAt: new Date('2044-05-01'),
   },
   {
     kode_dosen: '197908032003122003',
@@ -309,7 +304,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Lektor',
-    createdAt: new Date('2044-09-01'),
   },
   {
     kode_dosen: '198111162005012004',
@@ -320,7 +314,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Lektor',
-    createdAt: new Date('2046-12-01'),
   },
   {
     kode_dosen: '198502272015042001',
@@ -331,7 +324,6 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Asisten Ahli',
-    createdAt: new Date('2050-03-01'),
   },
   {
     kode_dosen: '198807122018032001',
@@ -342,39 +334,14 @@ const dosenData = [
     fakultas: 'Teknik Informatika dan Komputer',
     prodi: 'D4 Teknik Informatika',
     jabatan: 'Pengajar',
-    createdAt: new Date('2053-08-01'),
   },
 ]
-
-// Tambahkan nim ke setiap mahasiswa sesuai urutan userData
-const mahasiswaSeed = mahasiswaData.map((mhs, idx) => ({
-  nim: nimList[idx],
-  ...mhs,
-}))
 
 async function main() {
   console.log('Starting user seeding...')
   await prisma.user.createMany({ data: userData, skipDuplicates: true })
 
-  // Pastikan admin juga di-insert dengan detail jika field ada di model
-  const adminUser = {
-    username: 'bernard.admin',
-    password: '$2b$12$8yQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6e6ZbQw7w8yQwKOB5zQwK7p6', // hash dari 'admin123'
-    role: 'admin',
-    isVerified: true,
-    nama: 'Bernard Pratama',
-    email: 'bernard.pratama@tik.ac.id',
-    phone: '081234567890',
-    foto: 'https://randomuser.me/api/portraits/men/75.jpg',
-    createdAt: new Date('2025-06-21'),
-  }
-
-  // Cek jika admin belum ada, baru insert (untuk menghindari duplikasi)
-  const adminExists = await prisma.user.findUnique({ where: { username: adminUser.username } })
-  if (!adminExists) {
-    await prisma.user.create({ data: adminUser })
-    console.log('Admin user seeded.')
-  }
+  // Tidak perlu menambah adminUser dengan field tambahan karena schema User tidak punya field tsb
 
   console.log('Starting mahasiswa seeding...')
   for (const mhs of mahasiswaSeed) {
