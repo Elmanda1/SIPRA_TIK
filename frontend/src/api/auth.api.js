@@ -7,12 +7,12 @@ const authApi = axios.create({
   withCredentials: true // Important for cookies
 });
 
-export const login = async (username, password) => {
+export const login = async (username, password, role) => {
   try {
-    const response = await authApi.post('/login', { username, password });
+    const response = await authApi.post('/login', { username, password, role });
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Login failed');
+    throw new Error(error.response?.data?.message || 'Login gagal');
   }
 };
 

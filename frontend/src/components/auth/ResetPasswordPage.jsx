@@ -45,7 +45,7 @@ const ResetPasswordPage = () => {
       // Kirim request ke backend
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
         username,
-        role: selectedRole === 'mahasiswa' ? 'user' : selectedRole
+        role: selectedRole
       });
 
       // Simpan kode verifikasi dari backend (untuk dev/testing)
@@ -96,7 +96,7 @@ const ResetPasswordPage = () => {
       // Kirim request ke backend
       await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password/confirm`, {
         username,
-        role: selectedRole === 'mahasiswa' ? 'user' : selectedRole,
+        role: selectedRole,
         resetToken: validCode,
         newPassword,
       });
@@ -159,13 +159,13 @@ const ResetPasswordPage = () => {
         <select
           value={selectedRole}
           onChange={(e) => setSelectedRole(e.target.value)}
-          className="block w-full px-4 py-3 text-lg bg-white border border-gray-300 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           required
+          className="block w-full px-4 py-3 text-lg bg-white border border-gray-300 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">Pilih Role</option>
-          {roles.map((role) => (
-            <option key={role} value={role}>{role.charAt(0).toUpperCase() + role.slice(1)}</option>
-          ))}
+          <option value="admin">Admin</option>
+          <option value="mahasiswa">Mahasiswa</option>
+          <option value="dosen">Dosen</option>
         </select>
       </div>
 
@@ -438,3 +438,13 @@ const ResetPasswordPage = () => {
 };
 
 export default ResetPasswordPage;
+
+export async function login(req, res) {
+  try {
+    const { username, password, role } = req.body; // pastikan role diambil dari body!
+    const result = await authService.login({ username, password, role, req });
+    res.json({ status: 'success', data: { user: result.user, accessToken: result.accessToken, refreshToken: result.refreshToken } });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+}

@@ -2,10 +2,12 @@ import express from 'express';
 import * as AuthController from '../controllers/auth.controller.js';
 import * as authService from '../services/auth.service.js';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validate } from '../middleware/validator.js';
+import { loginSchema } from '../Validators/auth.schema.js';
 
 const router = express.Router();
 
-router.post('/login', AuthController.login);
+router.post('/login', validate(loginSchema), AuthController.login);
 router.post('/reset-password', async (req, res) => {
   try {
     const { username, role } = req.body;

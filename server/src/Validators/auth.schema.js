@@ -17,6 +17,14 @@ export const loginSchema = Joi.object({
       'string.min': 'Password minimal 6 karakter',
       'any.required': 'Password harus diisi',
     }),
+  role: Joi.string()
+    .valid('admin', 'mahasiswa', 'dosen')
+    .required()
+    .messages({
+      'any.only': 'Role tidak valid',
+      'any.required': 'Role harus diisi',
+      'string.empty': 'Role harus diisi',
+    }),
 });
 
 export const resetPasswordSchema = z.object({

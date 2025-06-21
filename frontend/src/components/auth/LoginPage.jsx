@@ -164,18 +164,17 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (isBlocked) return;
-
     if (!selectedRole) {
       setError('Silakan pilih role terlebih dahulu.');
       setShowAlert(true);
       return;
     }
-
     setLoading(true);
     try {
-      const data = await loginApi(username, password);
+      // Kirim role ke backend!
+      const data = await loginApi(username, password, selectedRole);
 
+      // Ambil user dari response backend
       const user = data.data?.user;
       if (!user) {
         setError(data.message || 'Login gagal. Username atau password salah.');
@@ -184,41 +183,25 @@ const LoginPage = () => {
         return;
       }
 
-      if (user.role.toLowerCase() !== selectedRole.toLowerCase()) {
-        setError('Role tidak sesuai dengan akun.');
-        setShowAlert(true);
-        setLoading(false);
-        return;
-      }
+      const userRole = user.role?.toLowerCase();
+      const selected = selectedRole?.toLowerCase();
 
-      setLoginAttempts(0);
-      setIsBlocked(false);
-      setBlockTimeRemaining(0);
-      setError(null);
+      // Mahasiswa: role di DB bisa 'mahasiswa' atau 'user'
+      const isUser =
+        (selected === 'mahasiswa' && (userRole === 'mahasiswa' || userRole === 'user')) ||
+        (selected === 'user' && (userRole === 'mahasiswa' || userRole === 'user'));
 
-      if (user.role === 'admin') {
+      if (selected === 'admin' && userRole === 'admin') {
         navigate('/admin/dashboard');
-      } else if (
-        user.role === 'mahasiswa' ||
-        user.role === 'user' ||
-        user.role === 'dosen'
-      ) {
+      } else if (isUser || userRole === 'dosen') {
+        // Mahasiswa dan dosen ke dashboard user
         navigate('/user/dashboard');
       } else {
-        setError('Role tidak dikenali');
+        setError('Role tidak sesuai dengan akun.');
         setShowAlert(true);
       }
     } catch (err) {
-      setLoginAttempts((prev) => {
-        const next = prev + 1;
-        if (next >= maxLoginAttempts) {
-          setIsBlocked(true);
-          setBlockTimeRemaining(60);
-        }
-        return next;
-      });
-      // Tampilkan pesan error dari backend jika ada
-      setError(err.response?.data?.message || err.message || 'Terjadi kesalahan saat login');
+      setError(err.message || 'Terjadi kesalahan saat login');
       setShowAlert(true);
     } finally {
       setLoading(false);
@@ -281,20 +264,22 @@ const LoginPage = () => {
               <label className="block text-base font-medium text-gray-700 mb-2">
                 Login Sebagai
               </label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="block w-full pl-4 pr-8 py-4 text-lg bg-white border border-gray-300 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                required
-                disabled={isBlocked}
-              >
-                <option value="">Pilih Role</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  required
+                  className="block w-full px-4 py-3 text-lg bg-white border border-gray-300 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                >
+                  <option value="">Pilih Role</option>
+                  <option value="admin">Admin</option>
+                  <option value="mahasiswa">Mahasiswa</option>
+                  <option value="dosen">Dosen</option>
+                </select>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
+                  ▼
+                </span>
+              </div>
             </div>
 
             <div>

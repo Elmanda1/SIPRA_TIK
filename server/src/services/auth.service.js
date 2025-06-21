@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
 import { sendEmail } from '../utils/email.js';
 
-export async function login({ username, password, req }) {
+export async function login({ username, password, role, req }) {
   try {
     // Basic validation
     if (!username || !password) {
@@ -12,14 +12,8 @@ export async function login({ username, password, req }) {
     }
 
     // Find user
-    const user = await prisma.user.findUnique({
-      where: { username },
-      select: {
-        username: true,
-        password: true,
-        role: true,
-        isVerified: true,
-      }
+    const user = await prisma.user.findFirst({
+      where: { username, role },
     });
 
     if (!user) {
@@ -157,10 +151,34 @@ export async function resetPassword({ username, role }) {
 
     // 6. Untuk dev/testing, return token di response
     return { message: 'Kode reset password berhasil digenerate.', resetToken };
-  }
+  } else if (role === 'dosen' || role === 'admin') {
+    // 1. Cari user di tabel user
+    user = await prisma.user.findFirst({ where: { username, role } });
+    if (!user) throw new Error('User tidak ditemukan');
 
-  // ...handle dosen dan admin seperti sebelumnya...
-  // (bisa pakai pola yang sama: cari email di tabel dosen, simpan token di user)
+    // 2. (Opsional) Cari email dari tabel dosen jika role dosen
+    if (role === 'dosen') {
+      const dosen = await prisma.dosen.findUnique({ where: { kode_dosen: username } });
+      email = dosen?.email;
+    } else if (role === 'admin') {
+      email = user.email; // jika ada field email
+    }
+
+    // 3. Generate kode reset
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+
+    // 4. Simpan token ke tabel user
+    await prisma.user.update({
+      where: { username },
+      data: { resetToken, resetTokenExpiry }
+    });
+
+    // 5. (Opsional) Kirim email kode reset
+    // await sendEmail(email, ...);
+
+    return { message: 'Kode reset password berhasil digenerate.', resetToken };
+  }
 }
 
 // Generate 6 digit verification token untuk user yang belum diverifikasi (opsional, bisa dipanggil manual)
@@ -174,11 +192,10 @@ export async function generateVerificationToken(username) {
 }
 
 export async function confirmResetPassword({ username, role, resetToken, newPassword }) {
-  // Cari user di tabel user
-  const user = await prisma.user.findUnique({ where: { username } });
-  if (!user || user.resetToken !== resetToken) {
-    throw new Error('Token reset tidak valid');
-  }
+  const user = await prisma.user.findFirst({
+    where: { username, role, resetToken }
+  });
+  if (!user) throw new Error('Token reset tidak valid');
   // Cek expiry jika perlu
   if (user.resetTokenExpiry && user.resetTokenExpiry < new Date()) {
     throw new Error('Token reset sudah kadaluarsa');
