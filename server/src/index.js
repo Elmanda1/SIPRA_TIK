@@ -1,5 +1,3 @@
-// src/index.js
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -15,6 +13,7 @@ import uploadRoutes from './routes/upload.routes.js';
 import path from 'path';
 import notificationsRoutes from './routes/notifications.routes.js';
 import { auditLog } from './middleware/audit.js';
+import userRoutes from './routes/user.routes.js';
 
 dotenv.config();
 
@@ -39,6 +38,8 @@ app.use('/api/v1/ruangan', ruanganRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/settings', settingsRoutes);
 app.use('/api/v1/notifications', notificationsRoutes);
+app.use('/api/v1', userRoutes);
+app.use('/api/v1', peminjamanRoutes);
 app.use('/uploads', express.static(path.resolve('uploads')));
 app.use(uploadRoutes);
 

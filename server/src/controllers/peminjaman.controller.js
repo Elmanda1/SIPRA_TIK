@@ -1,5 +1,3 @@
-import prisma from '../config/prisma.js';
-
 // GET /api/v1/peminjaman
 export async function getAllPeminjaman(req, res) {
   try {
@@ -30,22 +28,26 @@ export async function getPeminjamanById(req, res) {
 // POST /api/v1/peminjaman
 export async function createPeminjaman(req, res) {
   try {
-    const { tanggal_peminjaman, tanggal_pengembalian, keperluan, username, id_barang, kode_ruangan } = req.body;
-    if (!tanggal_peminjaman || !tanggal_pengembalian || !keperluan || !username)
-      return res.status(400).json({ error: 'Missing required fields' });
-    // Validasi tanggal
-    if (new Date(tanggal_pengembalian) <= new Date(tanggal_peminjaman))
-      return res.status(400).json({ error: 'Tanggal pengembalian harus setelah tanggal peminjaman' });
-    const pinjam = await prisma.peminjaman.create({
-      data: {
-        tanggal_peminjaman: new Date(tanggal_peminjaman),
-        tanggal_pengembalian: new Date(tanggal_pengembalian),
-        keperluan,
-        username,
-        id_barang,
-        kode_ruangan,
-      }
-    });
+    const {
+      tanggal_peminjaman,
+      tanggal_pengembalian,
+      keperluan,
+      username,
+      id_barang,
+      kode_ruangan // dari frontend, tapi di schema namanya nama_ruangan!
+    } = req.body;
+
+    // Mapping field frontend ke schema prisma
+    const data = {
+      tanggal_peminjaman: new Date(tanggal_peminjaman),
+      tanggal_pengembalian: new Date(tanggal_pengembalian),
+      keperluan,
+      username,
+      id_barang: id_barang !== null ? Number(id_barang) : null,
+      nama_ruangan: kode_ruangan || null // mapping dari kode_ruangan frontend ke nama_ruangan di schema
+    };
+
+    const pinjam = await prisma.peminjaman.create({ data });
     res.status(201).json({ data: pinjam });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -10,29 +10,38 @@ const UsersManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]); // Pastikan ini array kosong!
+  const [roleFilter, setRoleFilter] = useState('all'); // Tambahkan ini!
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    role: 'user',
+    status: 'active'
+  });
+  const [editUser, setEditUser] = useState({
+    id: '',
+    name: '',
+    email: '',
+    role: 'user',
+    status: 'active'
+  });
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    // Fetch users from backend
-    fetch(`${import.meta.env.VITE_API_URL}/users`, {
-      credentials: 'include',
-    })
+    fetch(`${import.meta.env.VITE_API_URL}/users`, { credentials: 'include' })
       .then(res => res.json())
-      .then(data => setUsers(data))
+      .then(data => setUsers(Array.isArray(data.data) ? data.data : []))
       .catch(err => console.error('Failed to fetch users:', err));
   }, []);
 
  // Filter users based on search term, role, and status
-  const filteredUsers = users.filter(user => {
-    const matchesSearchTerm = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-
+  const filteredUsers = Array.isArray(users) ? users.filter(user => {
+    const matchesSearchTerm = user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-    
-    return matchesSearchTerm && matchesRole && matchesStatus;
-  });
+    // Jika tidak ada status, abaikan filter status
+    return matchesSearchTerm && matchesRole;
+  }) : [];
 
   const handleEdit = (userId) => {
     console.log('Edit clicked for user ID:', userId);
@@ -265,8 +274,9 @@ return (
                 }`}
               >
                 <option value="all">Semua</option>
-                <option value="admin">Dosen</option>
+                <option value="admin">Admin</option>
                 <option value="user">Mahasiswa</option>
+                <option value="dosen">Dosen</option>
               </select>
             </div>
             
@@ -390,10 +400,9 @@ return (
                         <User className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <p className={`font-semibold ${themeClasses.textPrimary}`}>{user.name}</p>
+                        <p className={`font-semibold ${themeClasses.textPrimary}`}>{user.username}</p>
                         <p className={`text-sm flex items-center gap-1 ${themeClasses.textSecondary}`}>
-                          <Mail className="h-4 w-4" />
-                          {user.email}
+                          {user.role}
                         </p>
                       </div>
                     </div>
@@ -409,21 +418,23 @@ return (
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      user.status === 'active'
+                      user.isVerified
                         ? isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800'
                         : isDark ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-800'
                     }`}>
-                      {user.status === 'active' ? 'Aktif' : 'Tidak Aktif'}
+                      {user.isVerified ? 'Aktif' : 'Tidak Aktif'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className={`flex items-center gap-1 text-sm ${themeClasses.textSecondary}`}>
                       <Calendar className="h-4 w-4" />
-                      {new Date(user.joinDate).toLocaleDateString('id-ID', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
+                      {user.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString('id-ID', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })
+                        : '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -519,7 +530,55 @@ return (
                 />
               </div>
               
-              {/* ... other modal fields with similar dark mode additions ... */}
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editUser.email}
+                  onChange={handleEditInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none ${
+                    isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                  }`}
+                  placeholder="Masukkan email"
+                />
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Role
+                </label>
+                <select
+                  name="role"
+                  value={editUser.role}
+                  onChange={handleEditInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none text-sm ${
+                    isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                  }`}
+                >
+                  <option value="admin">Dosen</option>
+                  <option value="user">Mahasiswa</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={editUser.status}
+                  onChange={handleEditInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none text-sm ${
+                    isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                  }`}
+                >
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Tidak Aktif</option>
+                </select>
+              </div>
               
               <div className="flex gap-3 justify-end pt-4">
                 <button
@@ -554,7 +613,117 @@ return (
           <div className={`rounded-xl p-6 max-w-md w-full mx-4 shadow-xl overflow-y-auto hide-scrollbar ${
             isDark ? 'bg-gray-800' : 'bg-white'
           }`}>
-            {/* ... similar dark mode additions as Edit Modal ... */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
+                  isDark ? 'bg-green-900/30' : 'bg-green-100'
+                }`}>
+                  <Plus className={`h-6 w-6 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                </div>
+                <div>
+                  <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>Tambah Pengguna</h3>
+                  <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Isi data pengguna baru</p>
+                </div>
+              </div>
+              <button
+                onClick={cancelAddUser}
+                className={`p-2 ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Input fields with dark mode */}
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Nama Lengkap *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={newUser.name}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent focus:outline-none ${
+                    isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                  }`}
+                  placeholder="Masukkan nama lengkap"
+                />
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={newUser.email}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent focus:outline-none ${
+                    isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                  }`}
+                  placeholder="Masukkan email"
+                />
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Role
+                </label>
+                <select
+                  name="role"
+                  value={newUser.role}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent focus:outline-none text-sm ${
+                    isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                  }`}
+                >
+                  <option value="user">Mahasiswa</option>
+                  <option value="admin">Dosen</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={newUser.status}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent focus:outline-none text-sm ${
+                    isDark ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                  }`}
+                >
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Tidak Aktif</option>
+                </select>
+              </div>
+              
+              <div className="flex gap-3 justify-end pt-4">
+                <button
+                  type="button"
+                  onClick={cancelAddUser}
+                  className={`px-4 py-2 rounded-lg transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    isDark 
+                      ? 'text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-gray-500 focus:ring-offset-gray-800'
+                      : 'text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-gray-500 focus:ring-offset-white'
+                  }`}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitUser}
+                  className={`px-4 py-2 text-white rounded-lg hover:bg-green-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                    isDark ? 'bg-green-600 focus:ring-offset-gray-800' : 'bg-green-600 focus:ring-offset-white'
+                  }`}
+                >
+                  Tambah
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -565,7 +734,42 @@ return (
           <div className={`rounded-xl p-6 max-w-md w-full mx-4 shadow-xl ${
             isDark ? 'bg-gray-800' : 'bg-white'
           }`}>
-            {/* ... similar dark mode additions ... */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>Konfirmasi Hapus</h3>
+              <button
+                onClick={cancelDelete}
+                className={`p-2 ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                Apakah Anda yakin ingin menghapus pengguna <span className="font-semibold">{userToDelete?.name}</span>?
+              </p>
+            </div>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelDelete}
+                className={`px-4 py-2 rounded-lg transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  isDark 
+                    ? 'text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-gray-500 focus:ring-offset-gray-800'
+                    : 'text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-gray-500 focus:ring-offset-white'
+                }`}
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmDelete}
+                className={`px-4 py-2 text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                  isDark ? 'focus:ring-offset-gray-800' : 'focus:ring-offset-white'
+                }`}
+              >
+                Hapus
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -576,7 +780,32 @@ return (
           <div className={`rounded-xl p-6 max-w-md w-full mx-4 shadow-xl ${
             isDark ? 'bg-gray-800' : 'bg-white'
           }`}>
-            {/* ... similar dark mode additions ... */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>Sukses</h3>
+              <button
+                onClick={closeSuccessModal}
+                className={`p-2 ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                {successMessage}
+              </p>
+            </div>
+            
+            <div className="flex justify-end">
+              <button
+                onClick={closeSuccessModal}
+                className={`px-4 py-2 text-white rounded-lg bg-green-600 hover:bg-green-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                  isDark ? 'focus:ring-offset-gray-800' : 'focus:ring-offset-white'
+                }`}
+              >
+                Tutup
+              </button>
+            </div>
           </div>
         </div>
       )}

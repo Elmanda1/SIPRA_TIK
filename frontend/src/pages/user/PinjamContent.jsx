@@ -1,88 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Phone, FileText, Package, CheckCircle, HomeIcon, Package2 } from 'lucide-react';
 import { usePeminjaman } from '../../context/PeminjamanContext';
 import { useAuth } from '../../context/AuthContext';
 
-const barangPerKategori = {
-  'ruang-kelas': [
-    { id: 'aa-204', nama: 'Ruangan AA 204', jumlah: 1 },
-    { id: 'aa-205', nama: 'Ruangan AA 205', jumlah: 1 },
-    { id: 'aa-206', nama: 'Ruangan AA 206', jumlah: 1 },
-    { id: 'aa-207', nama: 'Ruangan AA 207', jumlah: 1 },
-    { id: 'aa-210', nama: 'Ruangan AA 210', jumlah: 1 },
-    { id: 'aa-211', nama: 'Ruangan AA 211', jumlah: 1 },
-    { id: 'aa-213', nama: 'Ruangan AA 213', jumlah: 1 },
-    { id: 'gsg-301', nama: 'Ruangan GSG 301', jumlah: 1 },
-    { id: 'gsg-302', nama: 'Ruangan GSG 302', jumlah: 1 },
-    { id: 'gsg-303', nama: 'Ruangan GSG 303', jumlah: 1 },
-    { id: 'gsg-304', nama: 'Ruangan GSG 304', jumlah: 1 },
-    { id: 'gsg-305', nama: 'Ruangan GSG 305', jumlah: 1 },
-    { id: 'gsg-306', nama: 'Ruangan GSG 306', jumlah: 1 },
-    { id: 'gsg-307', nama: 'Ruangan GSG 307', jumlah: 1 },
-    { id: 'lab-Database', nama: 'Laboratorium Database', jumlah: 1 },
-    { id: 'lab-Jaringan', nama: 'Laboratorium Jaringan', jumlah: 1},
-    { id: 'Teleconference', nama: 'Ruang Teleconference', jumlah: 1},
-    { id: 'Konsultasi-GSG', nama: 'Ruang Konsultasi GSG', jumlah: 1 },
-    { id: 'Konsultasi-AA', nama: 'Ruang Konsultasi AA', jumlah: 1 },
-  ],
-  'peralatan-av': [
-    { id: 'proyektor', nama: 'Proyektor', jumlah: 5 },
-    { id: 'speaker', nama: 'Speaker', jumlah: 3 },
-    { id: 'microphone', nama: 'Microphone', jumlah: 4 },
-    { id: 'layar-proyektor', nama: 'Layar Proyektor', jumlah: 3 },
-    { id: 'kamera-dslr', nama: 'Kamera DSLR', jumlah: 2 },
-    { id: 'video-camera', nama: 'Video Camera', jumlah: 2 },
-    { id: 'lighting-kit', nama: 'Lighting Kit', jumlah: 1 },
-    { id: 'audio-interface', nama: 'Audio Interface', jumlah: 2 },
-    { id: 'green-screen', nama: 'Green Screen', jumlah: 1 },
-    { id: 'wireless-presenter', nama: 'Wireless Presenter', jumlah: 5 },
-    { id: 'extension-hdmi', nama: 'Extension HDMI', jumlah: 8 },
-    { id: 'microphone-stand', nama: 'Microphone Stand', jumlah: 6 },
-    { id: 'mixer-audio', nama: 'Mixer Audio', jumlah: 2 },
-    { id: 'webcam-hd', nama: 'Webcam HD', jumlah: 4 },
-    { id: 'stabilizer-gimbal', nama: 'Stabilizer Gimbal', jumlah: 1 },
-    { id: 'vga-to-hdmi-converter', nama: 'VGA to HDMI Converter', jumlah: 3 },
-    { id: 'wireless-microphone-set', nama: 'Wireless Microphone Set', jumlah: 2 },
-    { id: 'backdrop-stand', nama: 'Backdrop Stand', jumlah: 2 }
-  ],
-  'perangkat-komputer': [
-    { id: 'pc-desktop', nama: 'PC Desktop', jumlah: 25 },
-    { id: 'laptop', nama: 'Laptop', jumlah: 15 },
-    { id: 'monitor-led', nama: 'Monitor LED', jumlah: 30 },
-    { id: 'keyboard-mechanical', nama: 'Keyboard Mechanical', jumlah: 30 },
-    { id: 'mouse-optical', nama: 'Mouse Optical', jumlah: 35 }
-  ],
-  'peralatan-jaringan': [
-    { id: 'router', nama: 'Router', jumlah: 3 },
-    { id: 'switch', nama: 'Switch', jumlah: 2 },
-    { id: 'kabel-utp', nama: 'Kabel UTP', jumlah: 3 },
-    { id: 'access-point', nama: 'Access Point', jumlah: 4 },
-    { id: 'hub', nama: 'Hub', jumlah: 1 },
-    { id: 'patch-panel', nama: 'Patch Panel', jumlah: 2 },
-    { id: 'firewall', nama: 'Firewall', jumlah: 1 },
-    { id: 'modem', nama: 'Modem', jumlah: 2 }
-  ],
-  'peralatan-listrik': [
-    { id: 'stop-kontak', nama: 'Stop Kontak', jumlah: 8 },
-    { id: 'kabel-roll', nama: 'Kabel Roll', jumlah: 4 },
-    { id: 'lampu', nama: 'Lampu', jumlah: 10 },
-    { id: 'ups', nama: 'UPS', jumlah: 3 },
-    { id: 'mcb', nama: 'MCB', jumlah: 6 },
-    { id: 'stabilizer', nama: 'Stabilizer', jumlah: 2 },
-    { id: 'konektor-listrik', nama: 'Konektor Listrik', jumlah: 15 },
-    { id: 'multimeter', nama: 'Multimeter', jumlah: 1 }
-  ],
-  'lainnya': [
-    { id: 'papan-pengumuman', nama: 'Papan Pengumuman', jumlah: 2 },
-    { id: 'dispenser', nama: 'Dispenser', jumlah: 1 },
-    { id: 'lain-lain', nama: 'Lain-lain', jumlah: 0 }
-  ]
-};
-
 const PinjamContent = () => {
   const { addPeminjaman } = usePeminjaman();
-  const { user } = useAuth(); // Fixed: moved inside component
-  
+  const { user } = useAuth();
+
+  // Tambahkan state untuk data barang dari database
+  const [barangList, setBarangList] = useState([]);
+  const [ruanganList, setRuanganList] = useState([]);
   const [selectedKategori, setSelectedKategori] = useState('');
   const [selectedBarang, setSelectedBarang] = useState('');
   const [showAlert, setShowAlert] = useState(false);
@@ -93,6 +20,16 @@ const PinjamContent = () => {
     endTime: '09:00',
     keterangan: ''
   });
+
+  // Fetch data barang dan ruangan dari backend
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/barang`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setBarangList(data.data || []));
+    fetch(`${import.meta.env.VITE_API_URL}/ruangan`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setRuanganList(data.data || []));
+  }, []);
 
   // Handle case when user is not logged in
   if (!user) {
@@ -179,22 +116,39 @@ const PinjamContent = () => {
     setShowConfirmation(true);
   };
 
-  const handleConfirmSubmit = () => {
-    // Create new peminjaman object
-    const newPeminjaman = {
-      room: selectedBarangData?.nama || '-',
-      building: selectedKategori ? selectedKategori.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : '-',
-      time: `${formData.startTime} - ${formData.endTime}`,
-      barang: selectedBarangData?.nama || '-',
-      keterangan: formData.keterangan
+  const handleConfirmSubmit = async () => {
+    // Ambil data user dan barang
+    const tanggal_peminjaman = new Date().toISOString();
+    const tanggal_pengembalian = new Date(); // Atur sesuai kebutuhan, misal +1 hari
+    tanggal_pengembalian.setDate(new Date().getDate() + 1);
+
+    const body = {
+      tanggal_peminjaman,
+      tanggal_pengembalian: tanggal_pengembalian.toISOString(),
+      keperluan: formData.keterangan,
+      username: user.username,
+      id_barang: selectedKategori === 'Ruang Kelas' ? null : Number(selectedBarang),
+      kode_ruangan: selectedKategori === 'Ruang Kelas' ? selectedBarang : null
     };
 
-    // Add to history
-    addPeminjaman(newPeminjaman);
-
-    // Close modals and reset form
-    setShowConfirmation(false);
-    setShowAlert(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/peminjaman`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setShowConfirmation(false);
+        setShowAlert(true);
+        resetForm();
+      } else {
+        alert(data.error || 'Gagal menyimpan peminjaman');
+      }
+    } catch (err) {
+      alert('Gagal koneksi ke server');
+    }
   };
 
   const handleSuccessClose = () => {
@@ -214,8 +168,16 @@ const PinjamContent = () => {
     }
   };
 
-  const selectedBarangData = selectedKategori && selectedBarang ? 
-    barangPerKategori[selectedKategori].find(b => b.id === selectedBarang) : null;
+  const selectedBarangData = barangList.find(b => b.id_barang === Number(selectedBarang));
+
+  const kategoriBarang = Array.from(
+    new Set(
+      barangList
+        .map(b => b.kategori)
+        .filter(kat => kat && kat.trim() !== '')
+    )
+  );
+  const kategoriList = [...kategoriBarang, 'Ruang Kelas'];
 
   return (
     <div className="flex flex-col items-center rounded-lg w-screen min-h-screen py-10 hide-scrollbar">
@@ -272,7 +234,11 @@ const PinjamContent = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-semibold text-gray-600">Barang:</span>
-                    <span className="text-gray-800">{selectedBarangData?.nama || 'Tidak ada'}</span>
+                    <span className="text-gray-800">
+                      {selectedKategori === 'Ruang Kelas'
+                        ? ruanganList.find(r => r.id_ruangan === selectedBarang)?.nama_ruangan || 'Tidak ada'
+                        : selectedBarangData?.nama_barang || 'Tidak ada'}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-semibold text-gray-600">Kategori:</span>
@@ -348,19 +314,16 @@ const PinjamContent = () => {
                   onChange={e => {
                     setSelectedKategori(e.target.value);
                     setSelectedBarang('');
-                    if (validationErrors.length > 0) {
-                      setValidationErrors([]);
-                    }
+                    if (validationErrors.length > 0) setValidationErrors([]);
                   }}
                   required
                 >
                   <option value="">Pilih Kategori</option>
-                  <option value="ruang-kelas">Ruang Kelas</option>
-                  <option value="peralatan-av">Peralatan AV</option>
-                  <option value="perangkat-komputer">Perangkat Komputer</option>
-                  <option value="peralatan-jaringan">Peralatan Jaringan</option>
-                  <option value="peralatan-listrik">Peralatan Listrik</option>
-                  <option value="lainnya">Lainnya</option>
+                  {kategoriList.map((kategori, index) => (
+                    <option key={index} value={kategori}>
+                      {kategori.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </option>
+                  ))}
                 </select>
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,11 +356,13 @@ const PinjamContent = () => {
                     {selectedKategori ? 'Pilih Barang' : 'Pilih kategori dulu'}
                   </option>
                   {selectedKategori &&
-                    barangPerKategori[selectedKategori]?.map(barang => (
-                      <option key={barang.id} value={barang.id}>
-                        {barang.nama}
-                      </option>
-                    ))}
+                    barangList
+                      .filter(b => b.kategori === selectedKategori)
+                      .map(barang => (
+                        <option key={barang.id_barang} value={barang.id_barang}>
+                          {barang.nama_barang}
+                        </option>
+                      ))}
                 </select>
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,7 +377,7 @@ const PinjamContent = () => {
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-green-700 font-medium">
-                      Stok tersedia: {selectedBarangData.jumlah} unit
+                      Stok tersedia: {selectedBarangData.jml_barang} unit
                     </span>
                   </div>
                 </div>

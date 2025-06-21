@@ -1,5 +1,5 @@
 // src/components/admin/ValidasiBarang.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/SettingsContext';
 import { 
   Search, 
@@ -23,163 +23,14 @@ const ValidasiBarang = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Sample data untuk validasi barang
-  const [barangData, setBarangData] = useState([
-    {
-      id: 1,
-      namaBarang: 'Proyektor Epson EB-X41',
-      kategori: 'Peralatan AV',
-      submittedBy: 'John Doe',
-      tanggalSubmit: '2025-06-10',
-      status: 'pending',
-      deskripsi: 'Proyektor untuk presentasi, kondisi masih bagus, lengkap dengan kabel HDMI',
-      kondisi: 'Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 2,
-      namaBarang: 'Laptop Dell Inspiron 15',
-      kategori: 'Perangkat Komputer',
-      submittedBy: 'Jane Smith',
-      tanggalSubmit: '2025-06-11',
-      status: 'approved',
-      deskripsi: 'Laptop bekas dalam kondisi baik, digunakan untuk pekerjaan kantor, RAM 8GB',
-      kondisi: 'Sangat Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 3,
-      namaBarang: 'Switch Cisco 24 Port',
-      kategori: 'Peralatan Jaringan',
-      submittedBy: 'Ahmad Rizki',
-      tanggalSubmit: '2025-06-12',
-      status: 'rejected',
-      deskripsi: 'Switch jaringan 24 port, bekas pakai untuk lab jaringan',
-      kondisi: 'Cukup',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 4,
-      namaBarang: 'Microphone Wireless Shure',
-      kategori: 'Peralatan AV',
-      submittedBy: 'Siti Nurhaliza',
-      tanggalSubmit: '2025-06-13',
-      status: 'pending',
-      deskripsi: 'Microphone wireless untuk acara, masih dalam kondisi bagus',
-      kondisi: 'Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 5,
-      namaBarang: 'PC Desktop All-in-One HP',
-      kategori: 'Perangkat Komputer',
-      submittedBy: 'Budi Santoso',
-      tanggalSubmit: '2025-06-14',
-      status: 'pending',
-      deskripsi: 'PC Desktop All-in-One untuk keperluan kantor, layar 21 inch',
-      kondisi: 'Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 6,
-      namaBarang: 'Router TP-Link AC1200',
-      kategori: 'Peralatan Jaringan',
-      submittedBy: 'Maya Sari',
-      tanggalSubmit: '2025-06-15',
-      status: 'approved',
-      deskripsi: 'Router wireless dual band, cocok untuk jaringan kantor kecil',
-      kondisi: 'Sangat Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 7,
-      namaBarang: 'Speaker Aktif JBL',
-      kategori: 'Peralatan AV',
-      submittedBy: 'Randi Pratama',
-      tanggalSubmit: '2025-06-12',
-      status: 'approved',
-      deskripsi: 'Speaker aktif untuk acara outdoor, daya 500W',
-      kondisi: 'Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 8,
-      namaBarang: 'Access Point Ubiquiti',
-      kategori: 'Peralatan Jaringan',
-      submittedBy: 'Linda Wijaya',
-      tanggalSubmit: '2025-06-11',
-      status: 'rejected',
-      deskripsi: 'Access Point untuk jaringan wireless, jangkauan luas',
-      kondisi: 'Cukup',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 9,
-      namaBarang: 'Monitor LED Samsung 24"',
-      kategori: 'Perangkat Komputer',
-      submittedBy: 'Agus Setiawan',
-      tanggalSubmit: '2025-06-10',
-      status: 'approved',
-      deskripsi: 'Monitor LED 24 inch, resolusi Full HD, cocok untuk design',
-      kondisi: 'Sangat Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 10,
-      namaBarang: 'Kamera DSLR Canon EOS',
-      kategori: 'Peralatan AV',
-      submittedBy: 'Devi Anggraini',
-      tanggalSubmit: '2025-06-13',
-      status: 'pending',
-      deskripsi: 'Kamera DSLR untuk dokumentasi acara, lengkap dengan lensa kit',
-      kondisi: 'Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 11,
-      namaBarang: 'Keyboard Mechanical Logitech',
-      kategori: 'Perangkat Komputer',
-      submittedBy: 'Eko Prasetyo',
-      tanggalSubmit: '2025-06-14',
-      status: 'pending',
-      deskripsi: 'Keyboard mechanical dengan switch blue, cocok untuk programmer',
-      kondisi: 'Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 12,
-      namaBarang: 'Patch Panel 48 Port',
-      kategori: 'Peralatan Jaringan',
-      submittedBy: 'Fira Rahmawati',
-      tanggalSubmit: '2025-06-15',
-      status: 'approved',
-      deskripsi: 'Patch panel 48 port untuk rack server, kondisi seperti baru',
-      kondisi: 'Sangat Baik',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 13,
-      namaBarang: 'Video Camera Sony Handycam',
-      kategori: 'Peralatan AV',
-      submittedBy: 'Gilang Ramadan',
-      tanggalSubmit: '2025-06-12',
-      status: 'rejected',
-      deskripsi: 'Video camera untuk perekaman acara, dilengkapi tripod',
-      kondisi: 'Cukup',
-      foto: '/api/placeholder/300/200',
-    },
-    {
-      id: 14,
-      namaBarang: 'Tablet Samsung Galaxy Tab',
-      kategori: 'Perangkat Komputer',
-      submittedBy: 'Hani Kusuma',
-      tanggalSubmit: '2025-06-13',
-      status: 'pending',
-      deskripsi: 'Tablet untuk presentasi mobile, layar 10 inch',
-      kondisi: 'Baik',
-      foto: '/api/placeholder/300/200',
-    }
-  ]);
+  // Ganti data dummy dengan data dari backend
+  const [barangData, setBarangData] = useState([]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/peminjaman`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setBarangData(data.data || []));
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -217,14 +68,26 @@ const ValidasiBarang = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const handleValidation = (id, action) => {
-    setBarangData(prevData =>
-      prevData.map(item =>
-        item.id === id ? { ...item, status: action } : item
-      )
-    );
-    // Here you would typically make an API call to update the status
-    console.log(`Item ${id} ${action}`);
+  const handleValidation = async (id, action) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/peminjaman/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: action })
+      });
+      if (res.ok) {
+        setBarangData(prev =>
+          prev.map(item =>
+            item.id_peminjaman === id ? { ...item, status: action } : item
+          )
+        );
+      } else {
+        alert('Gagal mengubah status');
+      }
+    } catch (err) {
+      alert('Gagal koneksi ke server');
+    }
   };
 
   const openDetailModal = (item) => {
