@@ -59,13 +59,13 @@ model Dosen {
   jabatan    String? @db.VarChar(100)
   createdAt  DateTime @default(now())
 
-  // Relation to User (username menggunakan kode_dosen ini)
   user       User    @relation("UserDosen", fields: [kode_dosen], references: [username])
 }
 
 model inven_barang {
   id_barang   Int          @id @default(autoincrement())
   nama_barang String       @db.VarChar(255)
+  kategori    String       @db.VarChar(100)
   jml_barang  Int
   lokasi      String?      @db.VarChar(100)
   kondisi     String?      @db.VarChar(100) // baik, rusak ringan, rusak berat
@@ -93,14 +93,12 @@ model Session {
 }
 
 model inven_ruangan {
-  kode_ruangan String       @id @db.VarChar(50) // Primary key
-  nama_ruangan String       @db.VarChar(255)
-  kapasitas    Int?
-  fasilitas    String?      @db.Text // AC, Proyektor, Whiteboard, dll
-  foto         String?      @db.VarChar(500) // Google Drive URL/ID
+  nama_ruangan String       @id @db.VarChar(50)
+  nama_gedung  String       @db.VarChar(255)
+  foto         String?      @db.VarChar(500)
   status       statusInven  @default(tersedia)
   keterangan   String?      @db.Text
-  username     String?      @db.VarChar(50) // PIC ruangan
+  username     String?      @db.VarChar(50)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -119,13 +117,13 @@ model peminjaman {
   catatan_pengembalian String?          @db.Text
   username             String           @db.VarChar(50) // Peminjam
   id_barang            Int?
-  kode_ruangan         String?          @db.VarChar(50)
+  nama_ruangan         String?          @db.VarChar(50)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
   penalty              Int?             @default(0)
 
   barang               inven_barang?    @relation("BarangPinjam", fields: [id_barang], references: [id_barang])
-  ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [kode_ruangan], references: [kode_ruangan])
+  ruangan              inven_ruangan?   @relation("RuanganPinjam", fields: [nama_ruangan], references: [nama_ruangan])
   user                 User             @relation("UserPinjam", fields: [username], references: [username])
 }
 

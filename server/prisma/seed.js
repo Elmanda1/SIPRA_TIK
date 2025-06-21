@@ -337,6 +337,82 @@ const dosenData = [
   },
 ]
 
+const ruanganData = [
+  { nama_ruangan: 'AA 204', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'AA 205', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'AA 206', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'AA 207', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'AA 210', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'AA 211', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'AA 213', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'GSG 301', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'GSG 302', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'GSG 303', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'GSG 304', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'GSG 305', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'GSG 306', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'GSG 307', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'Laboratorium Database', nama_gedung: 'Lab', status: 'tersedia' },
+  { nama_ruangan: 'Laboratorium Jaringan', nama_gedung: 'Lab', status: 'tersedia' },
+  { nama_ruangan: 'Ruang Teleconference', nama_gedung: 'Gedung AA', status: 'tersedia' },
+  { nama_ruangan: 'Ruang Konsultasi GSG', nama_gedung: 'Gedung GSG', status: 'tersedia' },
+  { nama_ruangan: 'Ruang Konsultasi AA', nama_gedung: 'Gedung AA', status: 'tersedia' },
+]
+
+const barangData = [
+  // Peralatan AV
+  { nama_barang: 'Proyektor', kategori: 'peralatan-av', jml_barang: 5, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Speaker', kategori: 'peralatan-av', jml_barang: 3, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Microphone', kategori: 'peralatan-av', jml_barang: 4, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Layar Proyektor', kategori: 'peralatan-av', jml_barang: 3, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Kamera DSLR', kategori: 'peralatan-av', jml_barang: 2, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Video Camera', kategori: 'peralatan-av', jml_barang: 2, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Lighting Kit', kategori: 'peralatan-av', jml_barang: 1, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Audio Interface', kategori: 'peralatan-av', jml_barang: 2, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Green Screen', kategori: 'peralatan-av', jml_barang: 1, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Wireless Presenter', kategori: 'peralatan-av', jml_barang: 5, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Extension HDMI', kategori: 'peralatan-av', jml_barang: 8, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Microphone Stand', kategori: 'peralatan-av', jml_barang: 6, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Mixer Audio', kategori: 'peralatan-av', jml_barang: 2, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Webcam HD', kategori: 'peralatan-av', jml_barang: 4, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Stabilizer Gimbal', kategori: 'peralatan-av', jml_barang: 1, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'VGA to HDMI Converter', kategori: 'peralatan-av', jml_barang: 3, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Wireless Microphone Set', kategori: 'peralatan-av', jml_barang: 2, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Backdrop Stand', kategori: 'peralatan-av', jml_barang: 2, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+
+  // Perangkat Komputer
+  { nama_barang: 'PC Desktop', kategori: 'perangkat-komputer', jml_barang: 25, lokasi: 'Lab Komputer', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Laptop', kategori: 'perangkat-komputer', jml_barang: 15, lokasi: 'Lab Komputer', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Monitor LED', kategori: 'perangkat-komputer', jml_barang: 30, lokasi: 'Lab Komputer', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Keyboard Mechanical', kategori: 'perangkat-komputer', jml_barang: 30, lokasi: 'Lab Komputer', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Mouse Optical', kategori: 'perangkat-komputer', jml_barang: 35, lokasi: 'Lab Komputer', kondisi: 'baik', status: 'tersedia' },
+
+  // Peralatan Jaringan
+  { nama_barang: 'Router', kategori: 'peralatan-jaringan', jml_barang: 3, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Switch', kategori: 'peralatan-jaringan', jml_barang: 2, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Kabel UTP', kategori: 'peralatan-jaringan', jml_barang: 3, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Access Point', kategori: 'peralatan-jaringan', jml_barang: 4, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Hub', kategori: 'peralatan-jaringan', jml_barang: 1, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Patch Panel', kategori: 'peralatan-jaringan', jml_barang: 2, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Firewall', kategori: 'peralatan-jaringan', jml_barang: 1, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Modem', kategori: 'peralatan-jaringan', jml_barang: 2, lokasi: 'Lab Jaringan', kondisi: 'baik', status: 'tersedia' },
+
+  // Peralatan Listrik
+  { nama_barang: 'Stop Kontak', kategori: 'peralatan-listrik', jml_barang: 8, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Kabel Roll', kategori: 'peralatan-listrik', jml_barang: 4, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Lampu', kategori: 'peralatan-listrik', jml_barang: 10, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'UPS', kategori: 'peralatan-listrik', jml_barang: 3, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'MCB', kategori: 'peralatan-listrik', jml_barang: 6, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Stabilizer', kategori: 'peralatan-listrik', jml_barang: 2, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Konektor Listrik', kategori: 'peralatan-listrik', jml_barang: 15, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Multimeter', kategori: 'peralatan-listrik', jml_barang: 1, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+
+  // Lainnya
+  { nama_barang: 'Papan Pengumuman', kategori: 'lainnya', jml_barang: 2, lokasi: 'Lobi', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Dispenser', kategori: 'lainnya', jml_barang: 1, lokasi: 'Lobi', kondisi: 'baik', status: 'tersedia' },
+  { nama_barang: 'Lain-lain', kategori: 'lainnya', jml_barang: 0, lokasi: 'Gudang', kondisi: 'baik', status: 'tersedia' },
+]
+
 async function main() {
   console.log('Starting user seeding...')
   await prisma.user.createMany({ data: userData, skipDuplicates: true })
@@ -358,6 +434,20 @@ async function main() {
     } catch (e) {
       console.error(`Gagal insert dosen Kode ${dosen.kode_dosen}:`, e.message)
     }
+  }
+
+  // Seed Ruangan (upsert agar tidak duplikat)
+  for (const ruangan of ruanganData) {
+    await prisma.inven_ruangan.upsert({
+      where: { nama_ruangan: ruangan.nama_ruangan },
+      update: {},
+      create: ruangan,
+    })
+  }
+
+  // Seed Barang (boleh create, id_barang auto)
+  for (const barang of barangData) {
+    await prisma.inven_barang.create({ data: barang })
   }
 
   console.log('Seeding finished.')
